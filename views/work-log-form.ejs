@@ -1,0 +1,49 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <div>
+      <h1><%= mode === 'new' ? meta.writeLabel : meta.label + ' 수정' %></h1>
+      <p>작성자, 부서, 직급은 로그인 사용자 정보로 자동 입력됩니다.</p>
+    </div>
+    <a class="button" href="<%= mode === 'new' ? meta.basePath : '/work-logs/' + log.id %>">취소</a>
+  </div>
+
+  <form class="panel work-log-form" method="post" action="<%= mode === 'new' ? meta.basePath + '/new' : '/work-logs/' + log.id + '/edit' %>">
+    <section class="form-grid">
+      <% if (type === 'daily') { %>
+        <label>작성일 <input type="date" name="entry_date" value="<%= log.entry_date || '' %>" required></label>
+      <% } else if (type === 'weekly') { %>
+        <label>주간 시작일 <input type="date" name="period_start" value="<%= log.period_start || '' %>" required></label>
+        <label>주간 종료일 <input type="date" name="period_end" value="<%= log.period_end || '' %>" required></label>
+      <% } else { %>
+        <label>대상 월 <input type="month" name="target_month" value="<%= log.target_month || '' %>" required></label>
+      <% } %>
+      <label>작성자 <input value="<%= log.author_name %>" disabled></label>
+      <label>부서 <input value="<%= log.department_name || '-' %>" disabled></label>
+      <label>직급 <input value="<%= log.position || '-' %>" disabled></label>
+      <label>상태
+        <select name="status">
+          <% statuses.forEach(function(status) { %>
+            <option value="<%= status %>" <%= log.status === status ? 'selected' : '' %>><%= status %></option>
+          <% }) %>
+        </select>
+      </label>
+    </section>
+
+    <section class="work-log-fields">
+      <% meta.fields.forEach(function(field) { const key = field[0]; const label = field[1]; %>
+        <label>
+          <span><%= label %><%= key.includes('summary') || key === 'today_work' ? ' *' : '' %></span>
+          <textarea name="<%= key %>" rows="<%= key.includes('summary') || key === 'today_work' ? 5 : 4 %>" <%= key.includes('summary') || key === 'today_work' ? 'required' : '' %>><%= log.content[key] || '' %></textarea>
+        </label>
+      <% }) %>
+    </section>
+
+    <div class="button-row">
+      <button class="button" type="submit" name="action" value="draft">임시저장</button>
+      <button class="button primary" type="submit" name="action" value="submit">제출하기</button>
+      <a class="button" href="<%= mode === 'new' ? meta.basePath : '/work-logs/' + log.id %>">취소</a>
+    </div>
+  </form>
+</main>
+<%- include('partials/footer') %>

@@ -1,0 +1,34 @@
+<aside class="admin-sidebar app-sidebar">
+  <div class="sidebar-brand">
+    <a class="brand" href="/dashboard">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+      <span class="brand-title"><%= companyName %></span>
+    </a>
+    <span>Admin Console</span>
+  </div>
+  <nav class="topnav admin-nav">
+    <a class="<%= currentPath === '/admin' ? 'active' : '' %>" href="/admin"><i class="fa-solid fa-house"></i> 관리자 홈</a>
+    <a class="<%= currentPath.startsWith('/admin/users') ? 'active' : '' %>" href="/admin/users"><i class="fa-solid fa-users"></i> 인사관리</a>
+    <a class="<%= currentPath.startsWith('/payroll') ? 'active' : '' %>" href="/payroll"><i class="fa-solid fa-won-sign"></i> 급여관리</a>
+    <a class="<%= currentPath.startsWith('/admin/departments') ? 'active' : '' %>" href="/admin/departments"><i class="fa-solid fa-building"></i> 부서 관리</a>
+    <a class="<%= currentPath.startsWith('/admin/roles') ? 'active' : '' %>" href="/admin/roles"><i class="fa-solid fa-shield-halved"></i> 권한 관리</a>
+    <a class="<%= currentPath.startsWith('/admin/attendance') ? 'active' : '' %>" href="/admin/attendance"><i class="fa-solid fa-clock"></i> 근태 관리</a>
+    <a class="<%= currentPath.startsWith('/admin/work-logs') ? 'active' : '' %>" href="/admin/work-logs"><i class="fa-solid fa-clipboard-list"></i> 업무현황</a>
+    <a class="<%= currentPath.startsWith('/admin/approval-forms') ? 'active' : '' %>" href="/admin/approval-forms"><i class="fa-solid fa-file-lines"></i> 결재 양식</a>
+    <a class="<%= currentPath.startsWith('/admin/approval-lines') ? 'active' : '' %>" href="/admin/approval-lines"><i class="fa-solid fa-diagram-project"></i> 결재라인</a>
+    <a class="<%= currentPath.startsWith('/admin/boards') ? 'active' : '' %>" href="/admin/boards"><i class="fa-solid fa-bullhorn"></i> 게시판 관리</a>
+    <a class="<%= currentPath.startsWith('/admin/settings') ? 'active' : '' %>" href="/admin/settings"><i class="fa-solid fa-gear"></i> 시스템 설정</a>
+    <a class="<%= currentPath.startsWith('/admin/logs') ? 'active' : '' %>" href="/admin/logs"><i class="fa-solid fa-list-ul"></i> 관리자 로그</a>
+  </nav>
+  <div class="sidebar-user">
+    <div class="sidebar-avatar" aria-hidden="true"><i class="fa-solid fa-user-shield"></i></div>
+    <div class="sidebar-user-main">
+      <strong><%= currentUser.name %></strong>
+      <span><%= currentUser.departmentName || '부서 미지정' %> · 관리자</span>
+      <small><%= currentUser.email || currentUser.username %></small>
+    </div>
+    <form action="/logout" method="post">
+      <button class="link-button" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
+    </form>
+  </div>
+</aside>

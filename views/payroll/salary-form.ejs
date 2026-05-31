@@ -1,0 +1,50 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1><%= title %></h1>
+    <div class="button-row">
+      <a class="button" href="/payroll/salaries">목록으로</a>
+    </div>
+  </div>
+
+  <form class="panel" action="<%= editSalary ? '/payroll/salaries/' + editSalary.id : '/payroll/salaries' %>" method="post">
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>직원 *
+        <select name="employee_id" required>
+          <option value="">선택</option>
+          <% employees.forEach(e => { %>
+            <option value="<%= e.id %>" <%= editSalary && editSalary.employee_id == e.id ? 'selected' : '' %>><%= e.employee_no %> - <%= e.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>급여 유형 *
+        <select name="salary_type" required>
+          <% ['연봉제','월급제','시급제'].forEach(t => { %>
+            <option value="<%= t %>" <%= editSalary && editSalary.salary_type === t ? 'selected' : (t === '연봉제' && !editSalary ? 'selected' : '') %>><%= t %></option>
+          <% }) %>
+        </select>
+      </label>
+
+      <label>연봉 (원) <input type="number" name="annual_salary" value="<%= editSalary ? editSalary.annual_salary : 0 %>" min="0"></label>
+      <label>월 기본급 (원) <input type="number" name="monthly_base_salary" value="<%= editSalary ? editSalary.monthly_base_salary : 0 %>" min="0"></label>
+      <label>식대 (원) <input type="number" name="meal_allowance" value="<%= editSalary ? editSalary.meal_allowance : 0 %>" min="0"></label>
+      <label>차량 유지비 (원) <input type="number" name="car_allowance" value="<%= editSalary ? editSalary.car_allowance : 0 %>" min="0"></label>
+      <label>직책수당 (원) <input type="number" name="position_allowance" value="<%= editSalary ? editSalary.position_allowance : 0 %>" min="0"></label>
+      <label>고정수당 (원) <input type="number" name="fixed_allowance" value="<%= editSalary ? editSalary.fixed_allowance : 0 %>" min="0"></label>
+      <label>기타 수당 (원) <input type="number" name="other_allowance" value="<%= editSalary ? editSalary.other_allowance : 0 %>" min="0"></label>
+
+      <label>적용 시작일 <input type="date" name="apply_start_date" value="<%= editSalary ? (editSalary.apply_start_date || '') : '' %>"></label>
+      <label>적용 종료일 <input type="date" name="apply_end_date" value="<%= editSalary ? (editSalary.apply_end_date || '') : '' %>"></label>
+      <label>결재자 <input name="approver" value="<%= editSalary ? (editSalary.approver || '') : '' %>"></label>
+      <label style="grid-column:span 3">메모
+        <textarea name="memo" rows="3"><%= editSalary ? (editSalary.memo || '') : '' %></textarea>
+      </label>
+    </div>
+
+    <div class="button-row">
+      <button class="button primary" type="submit">저장</button>
+      <a class="button" href="/payroll/salaries">목록으로</a>
+    </div>
+  </form>
+</main>
+<%- include('../partials/footer') %>

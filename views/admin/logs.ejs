@@ -1,0 +1,8 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>관리자 로그</h1></div>
+  <div class="panel table-wrap"><table><thead><tr><th>일시</th><th>관리자</th><th>작업</th><th>대상</th><th>설명</th></tr></thead><tbody>
+    <% logs.forEach(l => { %><tr><td><%= l.created_at.slice(0,16).replace('T',' ') %></td><td><%= l.admin_name %></td><td><%= l.action %></td><td><%= l.target_type || '-' %> #<%= l.target_id || '-' %></td><td><%= l.description || '' %></td></tr><% }) %>
+  </tbody></table></div>
+</section></main>
+<%- include('../partials/footer') %>

@@ -1,0 +1,156 @@
+<%- include('partials/head') %>
+
+<div class="login-page-bg">
+  <main class="login-wrap" aria-label="E-Groupware 로그인">
+    <section class="lp-left" aria-label="E-Groupware 소개">
+      <div class="lp-network" aria-hidden="true">
+        <span class="lp-line lp-line-1"></span>
+        <span class="lp-line lp-line-2"></span>
+        <span class="lp-line lp-line-3"></span>
+        <span class="lp-glow lp-glow-1"></span>
+        <span class="lp-glow lp-glow-2"></span>
+        <span class="lp-glow lp-glow-3"></span>
+        <span class="lp-glow lp-glow-4"></span>
+      </div>
+
+      <header class="lp-header">
+        <div class="lp-header-icon" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </div>
+        <div>
+          <div class="lp-header-name">E-Groupware</div>
+          <div class="lp-header-sub">AI Groupware Portal</div>
+        </div>
+      </header>
+
+      <div class="lp-hero">
+        <div class="lp-copy-block">
+          <p class="lp-badge">AI가 함께하는 스마트한 업무 환경</p>
+          <h1 class="lp-title">E-Groupware</h1>
+          <p class="lp-accentline">AI Groupware Portal</p>
+          <p class="lp-desc">
+            AI가 도와주는 중소기업 업무 운영 플랫폼<br>
+            전자결재, 공지사항, 근태관리, 사내 메일과 메신저,<br>
+            자산관리와 조직관리까지 하나의 플랫폼에서 관리하세요.
+          </p>
+
+          <div class="lp-tiles" aria-label="주요 기능">
+            <div class="lp-tile">
+              <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
+              <span>전자결재</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-regular fa-calendar-check" aria-hidden="true"></i>
+              <span>근태관리</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-solid fa-comment-dots" aria-hidden="true"></i>
+              <span>사내 메신저</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i>
+              <span>사내 메일</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i>
+              <span>자산관리</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-solid fa-sitemap" aria-hidden="true"></i>
+              <span>조직관리</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-solid fa-headphones-simple" aria-hidden="true"></i>
+              <span>Help Desk</span>
+            </div>
+            <div class="lp-tile">
+              <i class="fa-solid fa-robot" aria-hidden="true"></i>
+              <span>AI 업무지원</span>
+            </div>
+          </div>
+        </div>
+
+        <figure class="lp-illustration" aria-hidden="true">
+          <img src="/images/login-hero-illustration.png" alt="">
+        </figure>
+      </div>
+
+      <div class="lp-copy">© 2026 CGEssence. All rights reserved.</div>
+    </section>
+
+    <section class="lp-right" aria-label="로그인 양식">
+      <div class="lp-form-box">
+        <div class="lp-form-heading">
+          <div class="lp-form-icon" aria-hidden="true">
+            <i class="fa-solid fa-lock"></i>
+          </div>
+          <div>
+            <h2 class="lp-form-title">로그인</h2>
+            <p class="lp-form-sub">개인 정보를 입력한 뒤 로그인 해주세요</p>
+          </div>
+        </div>
+
+        <% if (locals.flash) { %>
+          <div class="login-flash login-flash-<%= flash.type %>">
+            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+            <span><%= flash.message %></span>
+          </div>
+        <% } %>
+
+        <form action="/login" method="post" class="lp-login-form">
+          <div class="lp-field">
+            <label for="loginUsername">아이디</label>
+            <div class="lp-input-wrap">
+              <i class="fa-regular fa-user lp-input-icon" aria-hidden="true"></i>
+              <input id="loginUsername" name="username" autocomplete="username" required autofocus placeholder="아이디 입력">
+            </div>
+          </div>
+
+          <div class="lp-field">
+            <label for="lpPwInput">비밀번호</label>
+            <div class="lp-input-wrap">
+              <i class="fa-solid fa-lock lp-input-icon" aria-hidden="true"></i>
+              <input id="lpPwInput" name="password" type="password" autocomplete="current-password" required placeholder="비밀번호 입력">
+              <button type="button" class="lp-pw-toggle" onclick="togglePw()" aria-label="비밀번호 보기 전환">
+                <i id="lpPwEye" class="fa-regular fa-eye-slash" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn-login" type="submit">
+            <i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>
+            <span>로그인</span>
+          </button>
+        </form>
+
+        <div class="lp-links">
+          <a href="#">비밀번호 찾기</a>
+          <span class="lp-links-div" aria-hidden="true"></span>
+          <a href="mailto:<%= locals.adminEmail || '' %>">관리자 문의</a>
+        </div>
+      </div>
+
+      <div class="lp-security-badge">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        <span>보안 인증으로 안전하게 보호됩니다.</span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+function togglePw() {
+  var inp = document.getElementById('lpPwInput');
+  var eye = document.getElementById('lpPwEye');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eye.className = 'fa-regular fa-eye';
+  } else {
+    inp.type = 'password';
+    eye.className = 'fa-regular fa-eye-slash';
+  }
+}
+</script>
+
+<%- include('partials/footer') %>

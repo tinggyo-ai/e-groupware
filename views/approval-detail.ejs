@@ -1,0 +1,45 @@
+<%- include('partials/head') %>
+<main class="container narrow">
+  <section class="panel">
+    <div class="section-head">
+      <div>
+        <h1><%= doc.title %></h1>
+        <p><%= doc.form_name %> · 신청자 <%= doc.requester_name %> · <span class="badge"><%= doc.status %></span></p>
+      </div>
+    </div>
+    <dl class="detail-list">
+      <dt>금액</dt><dd><%= Number(doc.amount || 0).toLocaleString('ko-KR') %>원</dd>
+      <dt>내용</dt><dd><pre><%= doc.content %></pre></dd>
+      <% if (doc.reject_reason) { %><dt>반려 사유</dt><dd><%= doc.reject_reason %></dd><% } %>
+    </dl>
+  </section>
+
+  <section class="panel">
+    <h2>결재 이력</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>순서</th><th>결재자</th><th>상태</th><th>의견</th><th>일시</th></tr></thead>
+        <tbody>
+          <% lines.forEach(function(line) { %>
+            <tr><td><%= line.step_order %></td><td><%= line.name %> <%= line.position || '' %></td><td><%= line.status %></td><td><%= line.comment || '' %></td><td><%= line.approved_at || '-' %></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <% const myLine = lines.find(line => line.approver_id === currentUser.id && line.status === '대기'); %>
+  <% if (myLine) { %>
+    <section class="panel">
+      <h2>결재 처리</h2>
+      <form method="post" class="form-stack">
+        <label>결재 의견 <textarea name="comment" rows="4"></textarea></label>
+        <div class="button-row">
+          <button class="button primary" formaction="/approvals/<%= doc.id %>/approve" type="submit">승인</button>
+          <button class="button danger" formaction="/approvals/<%= doc.id %>/reject" type="submit">반려</button>
+        </div>
+      </form>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

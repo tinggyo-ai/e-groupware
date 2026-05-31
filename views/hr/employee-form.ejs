@@ -1,0 +1,93 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1><%= title %></h1>
+    <div class="button-row">
+      <a class="button" href="/hr/employees">목록으로</a>
+    </div>
+  </div>
+
+  <form class="panel" action="<%= editEmployee ? '/hr/employees/' + editEmployee.id : '/hr/employees' %>" method="post">
+    <h2 style="margin-bottom:16px;font-size:18px;color:var(--primary)">기본 정보 <span style="color:var(--muted);font-size:13px;font-weight:400">* 필수항목</span></h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>사번 * <input name="employee_no" value="<%= editEmployee ? editEmployee.employee_no : '' %>" required></label>
+      <label>이름 * <input name="name" value="<%= editEmployee ? editEmployee.name : '' %>" required></label>
+      <label>영문명 <input name="english_name" value="<%= editEmployee ? (editEmployee.english_name || '') : '' %>"></label>
+      <label>부서 *
+        <select name="department_id" required>
+          <option value="">선택</option>
+          <% departments.forEach(d => { %>
+            <option value="<%= d.id %>" <%= editEmployee && editEmployee.department_id == d.id ? 'selected' : '' %>><%= d.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>팀 <input name="team" value="<%= editEmployee ? (editEmployee.team || '') : '' %>"></label>
+      <label>직급 * <input name="position" value="<%= editEmployee ? (editEmployee.position || '') : '' %>" required></label>
+      <label>직책 <input name="job_title" value="<%= editEmployee ? (editEmployee.job_title || '') : '' %>"></label>
+      <label>고용형태 *
+        <select name="employment_type" required>
+          <% ['정규직','계약직','파견직','인턴','프리랜서'].forEach(t => { %>
+            <option value="<%= t %>" <%= editEmployee && editEmployee.employment_type === t ? 'selected' : (t === '정규직' && !editEmployee ? 'selected' : '') %>><%= t %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>재직상태 *
+        <select name="employment_status" required>
+          <% ['재직','휴직','퇴사','대기'].forEach(s => { %>
+            <option value="<%= s %>" <%= editEmployee && editEmployee.employment_status === s ? 'selected' : (s === '재직' && !editEmployee ? 'selected' : '') %>><%= s %></option>
+          <% }) %>
+        </select>
+      </label>
+    </div>
+
+    <h2 style="margin-bottom:16px;font-size:18px;color:var(--primary)">근무 기간</h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>입사일 * <input type="date" name="hire_date" value="<%= editEmployee ? (editEmployee.hire_date || '') : '' %>" required></label>
+      <label>퇴사일 <input type="date" name="resignation_date" value="<%= editEmployee ? (editEmployee.resignation_date || '') : '' %>"></label>
+      <label>계약 시작일 <input type="date" name="contract_start_date" value="<%= editEmployee ? (editEmployee.contract_start_date || '') : '' %>"></label>
+      <label>계약 종료일 <input type="date" name="contract_end_date" value="<%= editEmployee ? (editEmployee.contract_end_date || '') : '' %>"></label>
+      <label>수습 시작일 <input type="date" name="probation_start" value="<%= editEmployee ? (editEmployee.probation_start || '') : '' %>"></label>
+      <label>수습 종료일 <input type="date" name="probation_end" value="<%= editEmployee ? (editEmployee.probation_end || '') : '' %>"></label>
+    </div>
+
+    <h2 style="margin-bottom:16px;font-size:18px;color:var(--primary)">개인 정보</h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>생년월일 <input type="date" name="birthdate" value="<%= editEmployee ? (editEmployee.birthdate || '') : '' %>"></label>
+      <label>성별
+        <select name="gender">
+          <option value="">선택</option>
+          <option value="남" <%= editEmployee && editEmployee.gender === '남' ? 'selected' : '' %>>남</option>
+          <option value="여" <%= editEmployee && editEmployee.gender === '여' ? 'selected' : '' %>>여</option>
+        </select>
+      </label>
+      <label>휴대폰 <input name="phone" value="<%= editEmployee ? (editEmployee.phone || '') : '' %>" placeholder="010-0000-0000"></label>
+      <label>이메일 <input type="email" name="email" value="<%= editEmployee ? (editEmployee.email || '') : '' %>"></label>
+      <label style="grid-column:span 2">주소 <input name="address" value="<%= editEmployee ? (editEmployee.address || '') : '' %>"></label>
+    </div>
+
+    <h2 style="margin-bottom:16px;font-size:18px;color:var(--primary)">비상 연락처</h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>비상연락 이름 <input name="emergency_name" value="<%= editEmployee ? (editEmployee.emergency_name || '') : '' %>"></label>
+      <label>관계 <input name="emergency_relation" value="<%= editEmployee ? (editEmployee.emergency_relation || '') : '' %>"></label>
+      <label>비상연락 전화 <input name="emergency_phone" value="<%= editEmployee ? (editEmployee.emergency_phone || '') : '' %>"></label>
+    </div>
+
+    <h2 style="margin-bottom:16px;font-size:18px;color:var(--primary)">경력 및 업무</h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>최종학력 <input name="education" value="<%= editEmployee ? (editEmployee.education || '') : '' %>"></label>
+      <label>경력 년수 <input type="number" name="career_years" value="<%= editEmployee ? (editEmployee.career_years || 0) : 0 %>" min="0"></label>
+      <label style="grid-column:span 3">담당업무
+        <textarea name="job_description" rows="3"><%= editEmployee ? (editEmployee.job_description || '') : '' %></textarea>
+      </label>
+      <label style="grid-column:span 3">비고
+        <textarea name="memo" rows="3"><%= editEmployee ? (editEmployee.memo || '') : '' %></textarea>
+      </label>
+    </div>
+
+    <div class="button-row">
+      <button class="button primary" type="submit">저장</button>
+      <a class="button" href="/hr/employees">목록으로</a>
+    </div>
+  </form>
+</main>
+<%- include('../partials/footer') %>

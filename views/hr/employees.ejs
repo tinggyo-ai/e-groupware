@@ -1,0 +1,107 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1>직원 목록</h1>
+    <div class="button-row">
+      <a class="button primary" href="/hr/employees/new"><i class="fa-solid fa-plus"></i> 직원 등록</a>
+      <a class="button" href="/hr">인사관리 홈</a>
+    </div>
+  </div>
+
+  <form class="panel filter-bar" method="get" action="/hr/employees" style="margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <label style="flex:1;min-width:160px">
+      이름 검색
+      <input type="text" name="name" value="<%= filters.name %>" placeholder="이름 입력">
+    </label>
+    <label style="min-width:160px">
+      부서
+      <select name="department">
+        <option value="">전체</option>
+        <% departments.forEach(d => { %>
+          <option value="<%= d.id %>" <%= filters.department == d.id ? 'selected' : '' %>><%= d.name %></option>
+        <% }) %>
+      </select>
+    </label>
+    <label style="min-width:140px">
+      고용형태
+      <select name="employment_type">
+        <option value="">전체</option>
+        <option value="정규직" <%= filters.employment_type === '정규직' ? 'selected' : '' %>>정규직</option>
+        <option value="계약직" <%= filters.employment_type === '계약직' ? 'selected' : '' %>>계약직</option>
+        <option value="파견직" <%= filters.employment_type === '파견직' ? 'selected' : '' %>>파견직</option>
+        <option value="인턴" <%= filters.employment_type === '인턴' ? 'selected' : '' %>>인턴</option>
+      </select>
+    </label>
+    <label style="min-width:140px">
+      재직상태
+      <select name="employment_status">
+        <option value="">전체</option>
+        <option value="재직" <%= filters.employment_status === '재직' ? 'selected' : '' %>>재직</option>
+        <option value="퇴사" <%= filters.employment_status === '퇴사' ? 'selected' : '' %>>퇴사</option>
+        <option value="휴직" <%= filters.employment_status === '휴직' ? 'selected' : '' %>>휴직</option>
+      </select>
+    </label>
+    <button class="button primary" type="submit">검색</button>
+    <a class="button" href="/hr/employees">초기화</a>
+  </form>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>사번</th>
+            <th>이름</th>
+            <th>부서</th>
+            <th>직급</th>
+            <th>직책</th>
+            <th>고용형태</th>
+            <th>재직상태</th>
+            <th>입사일</th>
+            <th>연락처</th>
+            <th>상세</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (employees.length === 0) { %>
+            <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">등록된 직원이 없습니다.</td></tr>
+          <% } %>
+          <% employees.forEach(emp => { %>
+            <%
+              let statusClass = 'badge';
+              if (emp.employment_status === '재직') statusClass += ' accent-blue';
+              else if (emp.employment_status === '퇴사') statusClass += ' accent-slate';
+              else if (emp.employment_status === '휴직') statusClass += ' accent-amber';
+              const maskedPhone = emp.phone ? emp.phone.replace(/(\d{3})-(\d{4})-(\d{4})/, '$1-****-$3') : '-';
+            %>
+            <tr>
+              <td><%= emp.employee_no %></td>
+              <td><strong><%= emp.name %></strong></td>
+              <td><%= emp.department_name || '-' %></td>
+              <td><%= emp.position || '-' %></td>
+              <td><%= emp.job_title || '-' %></td>
+              <td><%= emp.employment_type || '-' %></td>
+              <td><span class="<%= statusClass %>"><%= emp.employment_status %></span></td>
+              <td><%= emp.hire_date || '-' %></td>
+              <td><%= maskedPhone %></td>
+              <td class="actions">
+                <a href="/hr/employees/<%= emp.id %>">상세</a>
+                <a href="/hr/employees/<%= emp.id %>/edit">수정</a>
+                <form action="/hr/employees/<%= emp.id %>/delete" method="post" style="display:inline">
+                  <button type="submit" onclick="return confirm('퇴사 처리하시겠습니까?')" style="color:var(--danger)">퇴사</button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>
+
+<style>
+.badge.accent-blue { background:#e7f1ff;color:#115ca8; }
+.badge.accent-slate { background:#eef2f6;color:#526985; }
+.badge.accent-amber { background:#fff8e1;color:#b37a00; }
+</style>

@@ -1,0 +1,9 @@
+node_modules
+*.sqlite
+*.db
+.git
+.gitignore
+uploads
+README.md
+server.out.log
+server.err.log

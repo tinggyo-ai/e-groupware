@@ -1,0 +1,13 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>근태 관리</h1><a class="button" href="/admin/attendance/export?date=<%= date %>">CSV 다운로드</a></div>
+  <form class="filter-bar" method="get">
+    <input type="date" name="date" value="<%= date %>"><input name="user" placeholder="직원명" value="<%= query.user || '' %>">
+    <select name="department_id"><option value="">전체 부서</option><% departments.forEach(d => { %><option value="<%= d.id %>" <%= String(query.department_id || '') === String(d.id) ? 'selected' : '' %>><%= d.name %></option><% }) %></select>
+    <button class="button">조회</button>
+  </form>
+  <div class="panel table-wrap"><table><thead><tr><th>직원</th><th>부서</th><th>출근</th><th>퇴근</th><th>상태</th><th>수정 사유</th><th>저장</th></tr></thead><tbody>
+    <% rows.forEach(r => { %><tr><form action="/admin/attendance/<%= r.user_id || r.id %>/update" method="post"><input type="hidden" name="work_date" value="<%= date %>"><td><%= r.name %> <small><%= r.position || '' %></small></td><td><%= r.department_name || '-' %></td><td><input type="time" name="check_in_time" value="<%= r.check_in_time ? r.check_in_time.slice(11,16) : '' %>"></td><td><input type="time" name="check_out_time" value="<%= r.check_out_time ? r.check_out_time.slice(11,16) : '' %>"></td><td><select name="status"><% ['출근 전','근무 중','퇴근 완료','지각','조퇴','미출근'].forEach(s => { %><option <%= r.status === s ? 'selected' : '' %>><%= s %></option><% }) %></select></td><td><input name="modified_reason" placeholder="수정 사유" required></td><td><button>저장</button></td></form></tr><% }) %>
+  </tbody></table></div>
+</section></main>
+<%- include('../partials/footer') %>

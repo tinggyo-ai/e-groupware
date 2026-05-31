@@ -1,0 +1,12 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>게시판 관리</h1></div>
+  <form class="panel form-grid" action="/admin/boards" method="post"><label>게시판명 <input name="name" required></label><label>설명 <input name="description"></label><label>권한 <select name="permission_type"><option value="public">전체 공개</option><option value="department">특정 부서 공개</option><option value="admin_write">관리자만 작성</option></select></label><button class="button primary">등록</button></form>
+  <div class="panel table-wrap"><h2>게시판 목록</h2><table><thead><tr><th>이름</th><th>설명</th><th>권한</th><th>저장</th></tr></thead><tbody>
+    <% boards.forEach(b => { %><tr><form action="/admin/boards/<%= b.id %>/update" method="post"><td><input name="name" value="<%= b.name %>"></td><td><input name="description" value="<%= b.description || '' %>"></td><td><input name="permission_type" value="<%= b.permission_type %>"></td><td><button>저장</button></td></form></tr><% }) %>
+  </tbody></table></div>
+  <div class="panel table-wrap"><h2>게시글 관리</h2><table><thead><tr><th>게시판</th><th>제목</th><th>작성자</th><th>상태</th><th>관리</th></tr></thead><tbody>
+    <% posts.forEach(p => { %><tr><td><%= p.board_name %></td><td><%= p.title %></td><td><%= p.author %></td><td><%= p.is_hidden ? '숨김' : '공개' %></td><td><form action="/admin/posts/<%= p.id %>/hide" method="post"><button>숨김</button></form></td></tr><% }) %>
+  </tbody></table></div>
+</section></main>
+<%- include('../partials/footer') %>

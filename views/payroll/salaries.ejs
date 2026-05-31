@@ -1,0 +1,53 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1>연봉정보 관리</h1>
+    <div class="button-row">
+      <a class="button primary" href="/payroll/salaries/new"><i class="fa-solid fa-plus"></i> 연봉정보 등록</a>
+      <a class="button" href="/payroll">급여관리 홈</a>
+    </div>
+  </div>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>사번</th>
+            <th>이름</th>
+            <th>부서</th>
+            <th>직급</th>
+            <th>급여유형</th>
+            <th>연봉</th>
+            <th>월기본급</th>
+            <th>식대</th>
+            <th>적용 시작일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (salaries.length === 0) { %>
+            <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">등록된 연봉정보가 없습니다.</td></tr>
+          <% } %>
+          <% salaries.forEach(s => { %>
+            <tr>
+              <td><%= s.employee_no %></td>
+              <td><strong><%= s.name %></strong></td>
+              <td><%= s.department_name || '-' %></td>
+              <td><%= s.position || '-' %></td>
+              <td><span class="badge"><%= s.salary_type %></span></td>
+              <td style="text-align:right;color:var(--muted)">***</td>
+              <td style="text-align:right;color:var(--muted)">***</td>
+              <td style="text-align:right"><%= Number(s.meal_allowance).toLocaleString('ko-KR') %>원</td>
+              <td><%= s.apply_start_date || '-' %></td>
+              <td class="actions">
+                <a href="/payroll/salaries/<%= s.id %>/edit">수정</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>

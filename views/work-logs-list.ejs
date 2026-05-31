@@ -1,0 +1,72 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <div>
+      <h1><%= meta.label %></h1>
+      <p><%= isAdmin ? '전체 직원 업무일지를 조회합니다.' : '내가 작성한 업무일지를 조회합니다.' %></p>
+    </div>
+    <a class="button primary" href="<%= meta.basePath %>/new">새 일지 작성</a>
+  </div>
+
+  <section class="panel search-panel">
+    <form class="filter-bar" method="get">
+      <% if (type === 'daily') { %>
+        <label>작성일 <input type="date" name="date" value="<%= filters.date %>"></label>
+      <% } else if (type === 'weekly') { %>
+        <label>주차 선택 <input type="date" name="date" value="<%= filters.date %>"></label>
+      <% } else { %>
+        <label>월 선택 <input type="month" name="month" value="<%= filters.month %>"></label>
+      <% } %>
+      <label>작성자 <input name="author" value="<%= filters.author %>" placeholder="작성자"></label>
+      <label>부서 <input name="department" value="<%= filters.department %>" placeholder="부서"></label>
+      <label>상태
+        <select name="status">
+          <option value="">전체</option>
+          <% statuses.forEach(function(status) { %>
+            <option value="<%= status %>" <%= filters.status === status ? 'selected' : '' %>><%= status %></option>
+          <% }) %>
+        </select>
+      </label>
+      <button class="button" type="submit">조회</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <% if (type === 'daily') { %><th>작성일</th><% } %>
+            <% if (type === 'weekly') { %><th>기간</th><% } %>
+            <% if (type === 'monthly') { %><th>대상 월</th><% } %>
+            <th>작성자</th>
+            <th>부서</th>
+            <th><%= type === 'daily' ? '주요업무 요약' : type === 'weekly' ? '주간 요약' : '월간 요약' %></th>
+            <th>상태</th>
+            <th>작성시간</th>
+            <th>상세보기</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% logs.forEach(function(log) { %>
+            <tr>
+              <% if (type === 'daily') { %><td><%= log.entry_date || '-' %></td><% } %>
+              <% if (type === 'weekly') { %><td><%= log.period_start || '-' %> ~ <%= log.period_end || '-' %></td><% } %>
+              <% if (type === 'monthly') { %><td><%= log.target_month || '-' %></td><% } %>
+              <td><%= log.author_name %></td>
+              <td><%= log.department_name || '-' %></td>
+              <td><%= log.summary || '-' %></td>
+              <td><span class="badge"><%= log.status %></span></td>
+              <td><%= log.created_at ? log.created_at.replace('T',' ').slice(0,16) : '-' %></td>
+              <td><a class="text-link" href="/work-logs/<%= log.id %>">보기</a></td>
+            </tr>
+          <% }) %>
+          <% if (!logs.length) { %>
+            <tr><td colspan="8" class="empty-cell">조회된 업무일지가 없습니다.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>

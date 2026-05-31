@@ -1,0 +1,145 @@
+<%- include('../partials/head') %>
+<main class="admin-shell">
+  <%- include('../partials/admin-nav') %>
+  <section class="admin-content">
+    <div class="page-title"><h1>사용자 관리</h1></div>
+
+    <section class="panel import-panel">
+      <div>
+        <h2>엑셀 일괄 등록</h2>
+        <p class="muted">첫 번째 시트의 헤더를 기준으로 직원을 등록합니다. 필수 컬럼은 사번, 비밀번호, 이름입니다.</p>
+        <p class="muted">지원 헤더: username, password, name, email, phone, department, position, role, status 또는 한글 헤더</p>
+      </div>
+      <form action="/admin/users/import" method="post" enctype="multipart/form-data" class="import-form">
+        <input type="file" name="excel_file" accept=".xlsx,.xls,.csv" required>
+        <button class="button primary" type="submit">엑셀 업로드</button>
+        <a class="button" href="/admin/users/import-template">샘플 양식</a>
+      </form>
+    </section>
+
+    <form class="panel form-grid" action="<%= editUser ? '/admin/users/' + editUser.id + '/update' : '/admin/users' %>" method="post">
+      <% if (!editUser) { %>
+        <label>사번 <input name="username" required></label>
+        <label>초기 비밀번호 <input name="password" value="1234"></label>
+      <% } %>
+      <label>이름 <input name="name" value="<%= editUser ? editUser.name : '' %>" required></label>
+      <label>이메일 <input name="email" value="<%= editUser ? editUser.email : '' %>"></label>
+      <label>연락처 <input name="phone" value="<%= editUser ? editUser.phone : '' %>"></label>
+      <label>부서
+        <select name="department_id">
+          <option value="">미지정</option>
+          <% departments.forEach(d => { %>
+            <option value="<%= d.id %>" <%= editUser && editUser.department_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>직급 <input name="position" value="<%= editUser ? editUser.position : '' %>"></label>
+      <label>권한
+        <select name="role">
+          <% ['admin','manager','employee'].forEach(r => { %>
+            <option value="<%= r %>" <%= editUser && editUser.role === r ? 'selected' : '' %>><%= r %></option>
+          <% }) %>
+        </select>
+      </label>
+      <% if (editUser) { %>
+        <label>상태
+          <select name="status">
+            <option value="active" <%= editUser.status === 'active' ? 'selected' : '' %>>active</option>
+            <option value="inactive" <%= editUser.status === 'inactive' ? 'selected' : '' %>>inactive</option>
+          </select>
+        </label>
+      <% } %>
+      <button class="button primary" type="submit"><%= editUser ? '수정 저장' : '직원 등록' %></button>
+    </form>
+
+    <form id="bulkDeactivateForm" action="/admin/users/bulk-delete" method="post" onsubmit="return confirm('선택한 사용자를 삭제 처리하시겠습니까? 실제 데이터는 감사 추적을 위해 비활성화 상태로 보관됩니다.');"></form>
+
+    <% users.forEach(u => { %>
+      <form id="resetPassword<%= u.id %>" action="/admin/users/<%= u.id %>/reset-password" method="post">
+        <input type="hidden" name="password" value="1234">
+      </form>
+      <form id="deactivateUser<%= u.id %>" action="/admin/users/<%= u.id %>/deactivate" method="post"></form>
+    <% }) %>
+
+    <%
+      const sortLink = function(key) {
+        const nextOrder = sort === key && order === 'asc' ? 'desc' : 'asc';
+        return `/admin/users?status=${statusFilter}&sort=${key}&order=${nextOrder}`;
+      };
+      const sortMark = function(key) {
+        return sort === key ? (order === 'asc' ? ' ▲' : ' ▼') : '';
+      };
+    %>
+
+    <form class="filter-bar" method="get" action="/admin/users">
+      <input type="hidden" name="status" value="<%= statusFilter %>">
+      <input type="hidden" name="sort" value="<%= sort %>">
+      <input type="hidden" name="order" value="<%= order %>">
+      <input name="search" placeholder="이름 또는 사번 검색" value="<%= search %>">
+      <select name="department_id">
+        <option value="">전체 부서</option>
+        <% departments.forEach(d => { %>
+          <option value="<%= d.id %>" <%= String(deptFilter) === String(d.id) ? 'selected' : '' %>><%= d.name %></option>
+        <% }) %>
+      </select>
+      <button class="button">검색</button>
+      <a class="button" href="/admin/users">초기화</a>
+    </form>
+
+    <section class="panel bulk-panel">
+      <div class="bulk-actions">
+        <div>
+          <strong>직원 목록</strong>
+          <p class="muted">삭제 처리된 사용자는 기본 목록에서 숨겨지며, 삭제됨 보기에서 확인할 수 있습니다.</p>
+        </div>
+        <div class="bulk-actions-right">
+          <div class="segmented">
+            <a class="<%= statusFilter === 'active' ? 'active' : '' %>" href="/admin/users?status=active&sort=<%= sort %>&order=<%= order %>">사용중</a>
+            <a class="<%= statusFilter === 'inactive' ? 'active' : '' %>" href="/admin/users?status=inactive&sort=<%= sort %>&order=<%= order %>">삭제됨</a>
+            <a class="<%= statusFilter === 'all' ? 'active' : '' %>" href="/admin/users?status=all&sort=<%= sort %>&order=<%= order %>">전체</a>
+          </div>
+        <button class="button danger" type="submit" form="bulkDeactivateForm">선택 삭제</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="check-col">
+                <input type="checkbox" onclick="document.querySelectorAll('.row-check:not(:disabled)').forEach(cb => cb.checked = this.checked)">
+              </th>
+              <th><a class="sort-link" href="<%= sortLink('username') %>">사번<%= sortMark('username') %></a></th>
+              <th><a class="sort-link" href="<%= sortLink('name') %>">이름<%= sortMark('name') %></a></th>
+              <th><a class="sort-link" href="<%= sortLink('department') %>">부서<%= sortMark('department') %></a></th>
+              <th><a class="sort-link" href="<%= sortLink('position') %>">직급<%= sortMark('position') %></a></th>
+              <th><a class="sort-link" href="<%= sortLink('role') %>">권한<%= sortMark('role') %></a></th>
+              <th><a class="sort-link" href="<%= sortLink('status') %>">상태<%= sortMark('status') %></a></th>
+              <th>관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach(u => { %>
+              <tr>
+                <td>
+                  <input class="row-check" type="checkbox" name="user_ids" value="<%= u.id %>" form="bulkDeactivateForm" <%= u.id === currentUser.id || u.status === 'inactive' ? 'disabled' : '' %>>
+                </td>
+                <td><%= u.username %></td>
+                <td><a href="/admin/users/<%= u.id %>/hr"><%= u.name %></a></td>
+                <td><%= u.department_name || '-' %></td>
+                <td><%= u.position || '-' %></td>
+                <td><%= u.role %></td>
+                <td><%= u.status %></td>
+                <td class="actions">
+                  <a href="/admin/users/<%= u.id %>/edit">수정</a>
+                  <button type="submit" form="resetPassword<%= u.id %>">비번초기화</button>
+                  <button type="submit" form="deactivateUser<%= u.id %>">비활성화</button>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </section>
+</main>
+<%- include('../partials/footer') %>

@@ -1,0 +1,54 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-title print-hide">
+    <div>
+      <h1><%= log.meta.label %></h1>
+      <p><%= log.author_name %> · <%= log.department_name || '-' %> · <%= log.position || '-' %></p>
+    </div>
+    <div class="button-row">
+      <% if (canEdit) { %><a class="button primary" href="/work-logs/<%= log.id %>/edit">수정</a><% } %>
+      <a class="button" href="<%= log.meta.basePath %>">목록으로</a>
+      <button class="button" type="button" onclick="window.print()">인쇄하기</button>
+    </div>
+  </div>
+
+  <section class="panel work-log-detail">
+    <div class="detail-header">
+      <span class="badge"><%= log.status %></span>
+      <% if (log.log_type === 'daily') { %><strong>작성일: <%= log.entry_date || '-' %></strong><% } %>
+      <% if (log.log_type === 'weekly') { %><strong>기간: <%= log.period_start || '-' %> ~ <%= log.period_end || '-' %></strong><% } %>
+      <% if (log.log_type === 'monthly') { %><strong>대상 월: <%= log.target_month || '-' %></strong><% } %>
+    </div>
+    <dl class="detail-list">
+      <dt>작성자</dt><dd><%= log.author_name %></dd>
+      <dt>부서</dt><dd><%= log.department_name || '-' %></dd>
+      <dt>직급</dt><dd><%= log.position || '-' %></dd>
+      <dt>요약</dt><dd><%= log.summary || '-' %></dd>
+    </dl>
+    <div class="work-log-detail-grid">
+      <% log.meta.fields.forEach(function(field) { const key = field[0]; const label = field[1]; %>
+        <article>
+          <h2><%= label %></h2>
+          <pre><%= log.content[key] || '-' %></pre>
+        </article>
+      <% }) %>
+    </div>
+  </section>
+
+  <% if (log.review_comment || isAdmin) { %>
+    <section class="panel print-hide">
+      <h2>관리자 검토</h2>
+      <% if (log.review_comment) { %>
+        <p class="review-comment"><%= log.review_comment %></p>
+        <p class="muted">검토자: <%= log.reviewer_name || '-' %> · <%= log.reviewed_at || '-' %></p>
+      <% } %>
+      <% if (isAdmin) { %>
+        <form action="/work-logs/<%= log.id %>/review" method="post" class="form-stack">
+          <label>검토의견 <textarea name="review_comment" rows="4"><%= log.review_comment || '' %></textarea></label>
+          <button class="button primary" type="submit">검토완료 처리</button>
+        </form>
+      <% } %>
+    </section>
+  <% } %>
+</main>
+<%- include('partials/footer') %>

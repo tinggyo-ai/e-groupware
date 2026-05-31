@@ -1,0 +1,240 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1><%= emp.name %> <span style="font-size:16px;font-weight:400;color:var(--muted)"><%= emp.employee_no %></span></h1>
+    <div class="button-row">
+      <a class="button primary" href="/hr/employees/<%= emp.id %>/edit">수정</a>
+      <a class="button" href="/hr/employees">목록으로</a>
+    </div>
+  </div>
+
+  <div class="tab-nav" style="display:flex;gap:4px;margin-bottom:0;border-bottom:2px solid var(--line)">
+    <button class="tab-btn active" data-target="tab-basic" onclick="switchTab(this)" type="button">기본정보</button>
+    <button class="tab-btn" data-target="tab-contracts" onclick="switchTab(this)" type="button">계약정보</button>
+    <button class="tab-btn" data-target="tab-histories" onclick="switchTab(this)" type="button">인사변동</button>
+    <button class="tab-btn" data-target="tab-memo" onclick="switchTab(this)" type="button">메모</button>
+  </div>
+
+  <!-- 기본정보 탭 -->
+  <div id="tab-basic" class="tab-panel panel" style="border-radius:0 0 10px 10px">
+    <h2 style="font-size:17px;margin-bottom:14px;color:var(--primary)">기본 정보</h2>
+    <dl class="detail-list" style="grid-template-columns:140px 1fr;gap:10px 20px;margin-bottom:20px">
+      <dt>사번</dt><dd><%= emp.employee_no %></dd>
+      <dt>이름</dt><dd><strong><%= emp.name %></strong></dd>
+      <dt>영문명</dt><dd><%= emp.english_name || '-' %></dd>
+      <dt>부서</dt><dd><%= emp.department_name || '-' %></dd>
+      <dt>팀</dt><dd><%= emp.team || '-' %></dd>
+      <dt>직급</dt><dd><%= emp.position || '-' %></dd>
+      <dt>직책</dt><dd><%= emp.job_title || '-' %></dd>
+      <dt>고용형태</dt><dd><%= emp.employment_type || '-' %></dd>
+      <dt>재직상태</dt><dd><%= emp.employment_status || '-' %></dd>
+      <dt>입사일</dt><dd><%= emp.hire_date || '-' %></dd>
+      <dt>퇴사일</dt><dd><%= emp.resignation_date || '-' %></dd>
+      <dt>계약기간</dt><dd><%= emp.contract_start_date || '-' %> ~ <%= emp.contract_end_date || '-' %></dd>
+      <dt>수습기간</dt><dd><%= emp.probation_start || '-' %> ~ <%= emp.probation_end || '-' %></dd>
+    </dl>
+    <h2 style="font-size:17px;margin-bottom:14px;color:var(--primary)">개인 정보</h2>
+    <dl class="detail-list" style="grid-template-columns:140px 1fr;gap:10px 20px;margin-bottom:20px">
+      <dt>생년월일</dt><dd><%= emp.birthdate || '-' %></dd>
+      <dt>성별</dt><dd><%= emp.gender || '-' %></dd>
+      <dt>휴대폰</dt><dd><%= emp.phone ? emp.phone.replace(/(\d{3})-(\d{4})-(\d{4})/, '$1-****-$3') : '-' %></dd>
+      <dt>이메일</dt><dd><%= emp.email || '-' %></dd>
+      <dt>주소</dt><dd><%= emp.address || '-' %></dd>
+      <dt>비상연락처</dt><dd><%= emp.emergency_name || '-' %> (<%= emp.emergency_relation || '-' %>) <%= emp.emergency_phone ? emp.emergency_phone.replace(/(\d{3})-(\d{4})-(\d{4})/, '$1-****-$3') : '' %></dd>
+    </dl>
+    <h2 style="font-size:17px;margin-bottom:14px;color:var(--primary)">경력 및 업무</h2>
+    <dl class="detail-list" style="grid-template-columns:140px 1fr;gap:10px 20px">
+      <dt>최종학력</dt><dd><%= emp.education || '-' %></dd>
+      <dt>경력 년수</dt><dd><%= emp.career_years || 0 %>년</dd>
+      <dt>담당업무</dt><dd><pre><%= emp.job_description || '-' %></pre></dd>
+    </dl>
+  </div>
+
+  <!-- 계약정보 탭 -->
+  <div id="tab-contracts" class="tab-panel panel" style="display:none;border-radius:0 0 10px 10px">
+    <div class="section-head">
+      <h2 style="font-size:17px">근로계약서 목록</h2>
+    </div>
+
+    <% if (contracts.length === 0) { %>
+      <p class="muted">등록된 계약이 없습니다.</p>
+    <% } else { %>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table>
+        <thead>
+          <tr>
+            <th>계약 제목</th>
+            <th>계약 유형</th>
+            <th>계약기간</th>
+            <th>서명상태</th>
+            <th>등록일</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% contracts.forEach(c => { %>
+          <tr>
+            <td><%= c.contract_title || '-' %></td>
+            <td><%= c.contract_type || '-' %></td>
+            <td><%= c.contract_start_date || '-' %> ~ <%= c.contract_end_date || '-' %></td>
+            <td><span class="badge"><%= c.signed_status || '-' %></span></td>
+            <td><%= c.created_at ? c.created_at.slice(0,10) : '-' %></td>
+            <td class="actions">
+              <form action="/hr/contracts/<%= c.id %>/delete" method="post" style="display:inline">
+                <button type="submit" onclick="return confirm('삭제하시겠습니까?')" style="color:var(--danger)">삭제</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+
+    <details style="margin-top:16px">
+      <summary style="cursor:pointer;font-weight:700;color:var(--primary);padding:8px 0">+ 계약 등록</summary>
+      <form action="/hr/contracts" method="post" class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px">
+        <input type="hidden" name="employee_id" value="<%= emp.id %>">
+        <label>계약 제목 <input name="contract_title"></label>
+        <label>계약 유형
+          <select name="contract_type">
+            <option value="정규직계약">정규직계약</option>
+            <option value="기간제계약">기간제계약</option>
+            <option value="연장계약">연장계약</option>
+          </select>
+        </label>
+        <label>계약 시작일 <input type="date" name="contract_start_date"></label>
+        <label>계약 종료일 <input type="date" name="contract_end_date"></label>
+        <label>부서 <input name="department"></label>
+        <label>직급 <input name="position"></label>
+        <label>근무지 <input name="work_location"></label>
+        <label>근무시간 <input name="work_time" placeholder="09:00~18:00"></label>
+        <label>급여 <input type="number" name="salary_amount" min="0" value="0"></label>
+        <label>계약일 <input type="date" name="contract_date"></label>
+        <label>서명 상태
+          <select name="signed_status">
+            <option value="미서명">미서명</option>
+            <option value="서명완료">서명완료</option>
+          </select>
+        </label>
+        <label>메모 <input name="memo"></label>
+        <div style="grid-column:span 3" class="button-row">
+          <button class="button primary" type="submit">계약 등록</button>
+        </div>
+      </form>
+    </details>
+  </div>
+
+  <!-- 인사변동 탭 -->
+  <div id="tab-histories" class="tab-panel panel" style="display:none;border-radius:0 0 10px 10px">
+    <div class="section-head">
+      <h2 style="font-size:17px">인사변동 이력</h2>
+    </div>
+
+    <% if (histories.length === 0) { %>
+      <p class="muted">등록된 인사변동 이력이 없습니다.</p>
+    <% } else { %>
+    <div class="table-wrap" style="margin-bottom:20px">
+      <table>
+        <thead>
+          <tr>
+            <th>변동일</th>
+            <th>변동 유형</th>
+            <th>변동 전</th>
+            <th>변동 후</th>
+            <th>사유</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% histories.forEach(h => { %>
+          <tr>
+            <td><%= h.change_date || '-' %></td>
+            <td><span class="badge"><%= h.change_type || '-' %></span></td>
+            <td><%= h.before_department || '' %> <%= h.before_position || '' %></td>
+            <td><%= h.after_department || '' %> <%= h.after_position || '' %></td>
+            <td><%= h.reason || '-' %></td>
+            <td class="actions">
+              <form action="/hr/histories/<%= h.id %>/delete" method="post" style="display:inline">
+                <button type="submit" onclick="return confirm('삭제하시겠습니까?')" style="color:var(--danger)">삭제</button>
+              </form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+
+    <details style="margin-top:16px">
+      <summary style="cursor:pointer;font-weight:700;color:var(--primary);padding:8px 0">+ 인사변동 등록</summary>
+      <form action="/hr/histories" method="post" class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px">
+        <input type="hidden" name="employee_id" value="<%= emp.id %>">
+        <label>변동일 <input type="date" name="change_date"></label>
+        <label>변동 유형
+          <select name="change_type">
+            <option value="부서이동">부서이동</option>
+            <option value="직급변경">직급변경</option>
+            <option value="승진">승진</option>
+            <option value="직책변경">직책변경</option>
+            <option value="전보">전보</option>
+          </select>
+        </label>
+        <label>변동 전 부서 <input name="before_department"></label>
+        <label>변동 후 부서 <input name="after_department"></label>
+        <label>변동 전 직급 <input name="before_position"></label>
+        <label>변동 후 직급 <input name="after_position"></label>
+        <label>변동 전 직책 <input name="before_job_title"></label>
+        <label>변동 후 직책 <input name="after_job_title"></label>
+        <label>결재자 <input name="approver"></label>
+        <label style="grid-column:span 2">사유 <input name="reason"></label>
+        <label>메모 <input name="memo"></label>
+        <div style="grid-column:span 3" class="button-row">
+          <button class="button primary" type="submit">인사변동 등록</button>
+        </div>
+      </form>
+    </details>
+  </div>
+
+  <!-- 메모 탭 -->
+  <div id="tab-memo" class="tab-panel panel" style="display:none;border-radius:0 0 10px 10px">
+    <h2 style="font-size:17px;margin-bottom:14px">메모</h2>
+    <% if (emp.memo) { %>
+      <pre style="background:#f4f6f9;padding:16px;border-radius:8px;line-height:1.7"><%= emp.memo %></pre>
+    <% } else { %>
+      <p class="muted">등록된 메모가 없습니다. 직원 수정 화면에서 메모를 입력할 수 있습니다.</p>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>
+
+<style>
+.tab-btn {
+  padding: 10px 18px;
+  border: 1px solid var(--line);
+  border-bottom: none;
+  background: #eaf0f6;
+  color: var(--muted);
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  font-size: 14px;
+}
+.tab-btn.active {
+  background: #fff;
+  color: var(--primary);
+  border-color: var(--line);
+}
+.tab-panel {
+  border-radius: 0 0 10px 10px;
+}
+</style>
+
+<script>
+function switchTab(btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.target).style.display = 'block';
+}
+</script>

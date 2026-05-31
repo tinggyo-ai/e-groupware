@@ -1,0 +1,24 @@
+<%- include('partials/head') %>
+<main class="container">
+  <section class="dashboard-hero">
+    <div>
+      <span class="eyebrow">Work Logs</span>
+      <h1>업무일지</h1>
+      <p>일일, 주간, 월간 업무 기록을 작성하고 진행 상태를 관리합니다.</p>
+    </div>
+  </section>
+
+  <section class="work-log-cards">
+    <% Object.keys(types).forEach(function(type) { const item = types[type]; %>
+      <a class="work-log-card" href="<%= item.basePath %>">
+        <span class="work-log-icon"><%= type === 'daily' ? 'D' : type === 'weekly' ? 'W' : 'M' %></span>
+        <div>
+          <h2><%= item.writeLabel %></h2>
+          <p><%= type === 'daily' ? '오늘 진행업무와 이슈를 기록합니다.' : type === 'weekly' ? '요일별 업무와 주간 성과를 정리합니다.' : '월간 성과와 개선사항을 보고서 형태로 정리합니다.' %></p>
+          <strong><%= counts[type] || 0 %>건</strong>
+        </div>
+      </a>
+    <% }) %>
+  </section>
+</main>
+<%- include('partials/footer') %>

@@ -1,0 +1,58 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1>인사관리</h1>
+    <div class="button-row">
+      <a class="button primary" href="/hr/employees/new"><i class="fa-solid fa-plus"></i> 직원 등록</a>
+    </div>
+  </div>
+
+  <section class="card-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:22px">
+    <article class="card kpi-card accent-blue">
+      <span>전체 직원수</span>
+      <strong><%= stats.totalCount %>명</strong>
+    </article>
+    <article class="card kpi-card accent-green">
+      <span>재직자</span>
+      <strong><%= stats.activeCount %>명</strong>
+    </article>
+    <article class="card kpi-card accent-slate">
+      <span>퇴사자</span>
+      <strong><%= stats.resignedCount %>명</strong>
+    </article>
+    <article class="card kpi-card accent-amber">
+      <span>계약만료 30일 이내</span>
+      <strong><%= stats.expiringSoon %>명</strong>
+    </article>
+    <article class="card kpi-card accent-indigo">
+      <span>이번달 입사</span>
+      <strong><%= stats.hiredThisMonth %>명</strong>
+    </article>
+    <article class="card kpi-card accent-slate">
+      <span>이번달 퇴사</span>
+      <strong><%= stats.resignedThisMonth %>명</strong>
+    </article>
+  </section>
+
+  <div class="two-col">
+    <div class="panel">
+      <div class="section-head">
+        <h2>빠른 메뉴</h2>
+      </div>
+      <ul class="clean-list">
+        <li><a href="/hr/employees">직원 목록 →</a></li>
+        <li><a href="/hr/employees/new">신규 직원 등록 →</a></li>
+      </ul>
+    </div>
+    <div class="panel">
+      <div class="section-head">
+        <h2>인사 기록</h2>
+      </div>
+      <ul class="clean-list">
+        <li><a href="/hr/employees">근로계약서 관리 →</a></li>
+        <li><a href="/hr/employees">인사변동 이력 →</a></li>
+      </ul>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

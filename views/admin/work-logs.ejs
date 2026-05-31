@@ -1,0 +1,96 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>업무일지 관리</h1></div>
+
+  <section class="card-grid admin-metrics">
+    <article class="card">
+      <div class="kpi-row"><span>전체 제출</span><i class="fa-solid fa-clipboard-list kpi-icon" aria-hidden="true"></i></div>
+      <strong><%= stats.total %>건</strong>
+    </article>
+    <article class="card">
+      <div class="kpi-row"><span>검토 대기</span><i class="fa-solid fa-hourglass-half kpi-icon" aria-hidden="true"></i></div>
+      <strong><%= stats.pending %>건</strong>
+    </article>
+    <article class="card">
+      <div class="kpi-row"><span>검토 완료</span><i class="fa-solid fa-circle-check kpi-icon" aria-hidden="true"></i></div>
+      <strong><%= stats.reviewed %>건</strong>
+    </article>
+    <article class="card">
+      <div class="kpi-row"><span>오늘 제출</span><i class="fa-solid fa-calendar-day kpi-icon" aria-hidden="true"></i></div>
+      <strong><%= stats.today %>건</strong>
+    </article>
+  </section>
+
+  <form class="filter-bar" method="get">
+    <input name="search" placeholder="직원명 검색" value="<%= query.search || '' %>">
+    <select name="log_type">
+      <option value="">전체 유형</option>
+      <option value="daily" <%= query.log_type === 'daily' ? 'selected' : '' %>>일일</option>
+      <option value="weekly" <%= query.log_type === 'weekly' ? 'selected' : '' %>>주간</option>
+      <option value="monthly" <%= query.log_type === 'monthly' ? 'selected' : '' %>>월간</option>
+    </select>
+    <select name="department_id">
+      <option value="">전체 부서</option>
+      <% departments.forEach(d => { %>
+        <option value="<%= d.id %>" <%= String(query.department_id || '') === String(d.id) ? 'selected' : '' %>><%= d.name %></option>
+      <% }) %>
+    </select>
+    <select name="status">
+      <option value="">전체 상태</option>
+      <option value="제출완료" <%= query.status === '제출완료' ? 'selected' : '' %>>검토 대기</option>
+      <option value="검토완료" <%= query.status === '검토완료' ? 'selected' : '' %>>검토 완료</option>
+    </select>
+    <input type="date" name="date" value="<%= query.date || '' %>">
+    <button class="button">조회</button>
+    <a class="button" href="/admin/work-logs">초기화</a>
+  </form>
+
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>작성자</th>
+          <th>부서</th>
+          <th>유형</th>
+          <th>기간 / 날짜</th>
+          <th>제출일</th>
+          <th>상태</th>
+          <th>검토자</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (rows.length === 0) { %>
+          <tr><td colspan="8" class="empty-cell">해당하는 업무일지가 없습니다.</td></tr>
+        <% } %>
+        <% rows.forEach(r => { %>
+          <tr>
+            <td><%= r.user_name %> <small><%= r.position || '' %></small></td>
+            <td><%= r.department_name || '-' %></td>
+            <td>
+              <% if (r.log_type === 'daily') { %><span class="badge">일일</span>
+              <% } else if (r.log_type === 'weekly') { %><span class="badge badge-blue">주간</span>
+              <% } else { %><span class="badge badge-purple">월간</span><% } %>
+            </td>
+            <td>
+              <% if (r.log_type === 'daily') { %><%= r.entry_date || '-' %>
+              <% } else if (r.log_type === 'weekly') { %><%= r.period_start %> ~ <%= r.period_end %>
+              <% } else { %><%= r.target_month || '-' %><% } %>
+            </td>
+            <td><%= r.created_at ? r.created_at.slice(0, 10) : '-' %></td>
+            <td>
+              <% if (r.status === '검토완료') { %>
+                <span class="badge badge-success">검토완료</span>
+              <% } else { %>
+                <span class="badge badge-warning">검토대기</span>
+              <% } %>
+            </td>
+            <td><%= r.reviewer_name || '-' %></td>
+            <td><a class="button button-sm" href="/work-logs/<%= r.id %>">검토하기</a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section></main>
+<%- include('../partials/footer') %>

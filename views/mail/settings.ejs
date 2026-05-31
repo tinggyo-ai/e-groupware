@@ -1,0 +1,87 @@
+<%- include('../partials/head', { title: title }) %>
+<main class="main-content">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-gear"></i> 메일 계정 설정</h1>
+    <% if (settings && settings.is_configured) { %>
+      <a class="btn btn-outline" href="/mail"><i class="fa-solid fa-arrow-left"></i> 메일함</a>
+    <% } %>
+  </div>
+
+  <% if (typeof error !== 'undefined') { %>
+    <div class="flash danger"><%= error %></div>
+  <% } %>
+
+  <div class="card" style="max-width:560px">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+      <p style="margin:0;font-size:13px;color:var(--text-muted)">
+        하이웍스 메일의 <strong>@cgessence.co.kr</strong> 계정을 연결하세요.<br>
+        저장 시 POP3 연결 테스트를 자동으로 진행합니다.
+      </p>
+    </div>
+    <form method="post" action="/mail/settings" style="padding:20px;display:flex;flex-direction:column;gap:16px">
+      <div class="form-group">
+        <label class="form-label">메일 주소 <span style="color:var(--danger)">*</span></label>
+        <input type="email" class="form-control" name="mail_address"
+               value="<%= settings?.mail_address || '' %>"
+               required placeholder="yourname@cgessence.co.kr">
+      </div>
+      <div class="form-group">
+        <label class="form-label">메일 비밀번호 <span style="color:var(--danger)">*</span></label>
+        <input type="password" class="form-control" name="mail_password" required
+               placeholder="<%= settings?.is_configured ? '변경 시에만 입력 (필수)' : '하이웍스 메일 비밀번호' %>">
+        <small style="color:var(--text-muted)">비밀번호는 AES-256으로 암호화되어 저장됩니다.</small>
+      </div>
+
+      <details style="border:1px solid var(--border);border-radius:6px;padding:12px">
+        <summary style="cursor:pointer;font-size:13px;color:var(--text-muted);user-select:none">
+          고급 설정 (서버 주소 변경)
+        </summary>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px">
+          <div class="form-group" style="margin:0">
+            <label class="form-label" style="font-size:12px">POP3 서버</label>
+            <input type="text" class="form-control" name="imap_host"
+                   value="<%= settings?.imap_host || 'pop3s.hiworks.com' %>">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label" style="font-size:12px">POP3 포트 (SSL 995)</label>
+            <input type="number" class="form-control" name="imap_port"
+                   value="<%= settings?.imap_port || 995 %>">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label" style="font-size:12px">SMTP 서버</label>
+            <input type="text" class="form-control" name="smtp_host"
+                   value="<%= settings?.smtp_host || 'smtps.hiworks.com' %>">
+          </div>
+          <div class="form-group" style="margin:0">
+            <label class="form-label" style="font-size:12px">SMTP 포트 (587 STARTTLS / 465 SSL)</label>
+            <input type="number" class="form-control" name="smtp_port"
+                   value="<%= settings?.smtp_port || 587 %>">
+          </div>
+        </div>
+      </details>
+
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-plug"></i> 저장 및 연결 테스트
+        </button>
+        <% if (settings && settings.is_configured) { %>
+          <a href="/mail" class="btn btn-outline">취소</a>
+        <% } %>
+      </div>
+    </form>
+  </div>
+
+  <div class="card" style="max-width:560px;margin-top:16px">
+    <div style="padding:16px 20px">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600">하이웍스 메일 설정 순서</p>
+      <ol style="margin:0;padding-left:18px;font-size:13px;color:var(--text-muted);line-height:2">
+        <li>하이웍스 관리자 콘솔 → 사용자 계정 생성</li>
+        <li>계정 생성: <code>이름@cgessence.co.kr</code></li>
+        <li>하이웍스 메일 관리 → <strong>POP3/SMTP 외부 접속 허용</strong> 활성화</li>
+        <li>위 폼에 메일 주소와 하이웍스 비밀번호 입력 후 저장</li>
+        <li>POP3: <code>pop3s.hiworks.com:995(SSL)</code> · SMTP: <code>smtps.hiworks.com:587(STARTTLS)</code></li>
+      </ol>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

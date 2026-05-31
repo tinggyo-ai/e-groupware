@@ -1,0 +1,79 @@
+<%- include('../partials/head', { title: title }) %>
+<main class="main-content">
+  <div class="page-header">
+    <h1 class="page-title" style="font-size:18px;word-break:break-all"><%= mail.subject %></h1>
+    <div class="page-actions">
+      <a class="btn btn-outline" href="/mail"><i class="fa-solid fa-arrow-left"></i> 목록</a>
+      <a class="btn btn-primary" href="/mail/compose?to=<%= encodeURIComponent(mail.from) %>&subject=<%= encodeURIComponent('Re: ' + mail.subject) %>">
+        <i class="fa-solid fa-reply"></i> 답장
+      </a>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px">
+    <table style="width:100%;border-collapse:collapse;font-size:13px">
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="padding:10px 16px;text-align:left;color:var(--text-muted);width:80px;font-weight:500">보낸 사람</th>
+        <td style="padding:10px 16px"><%= mail.from %></td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--border)">
+        <th style="padding:10px 16px;text-align:left;color:var(--text-muted);font-weight:500">받는 사람</th>
+        <td style="padding:10px 16px"><%= mail.to %></td>
+      </tr>
+      <tr>
+        <th style="padding:10px 16px;text-align:left;color:var(--text-muted);font-weight:500">날짜</th>
+        <td style="padding:10px 16px">
+          <% if (mail.date) { %>
+            <%= new Date(mail.date).toLocaleString('ko-KR') %>
+          <% } %>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card" style="min-height:200px">
+    <div style="padding:20px">
+      <% if (mail.html) { %>
+        <iframe
+          id="mail-frame"
+          sandbox="allow-same-origin"
+          style="width:100%;min-height:300px;border:none;display:block"
+          srcdoc="<%= mail.html.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;') %>"
+        ></iframe>
+        <script>
+          (function() {
+            var frame = document.getElementById('mail-frame');
+            var html = <%- JSON.stringify(mail.html) %>;
+            var blob = new Blob([html], { type: 'text/html' });
+            frame.src = URL.createObjectURL(blob);
+            frame.onload = function() {
+              try {
+                frame.style.height = (frame.contentDocument.body.scrollHeight + 40) + 'px';
+              } catch(e) {}
+            };
+          })();
+        </script>
+      <% } else { %>
+        <pre style="white-space:pre-wrap;word-break:break-word;font-family:inherit;margin:0;font-size:14px;line-height:1.6"><%= mail.text %></pre>
+      <% } %>
+    </div>
+  </div>
+
+  <% if (mail.attachments && mail.attachments.length > 0) { %>
+    <div class="card" style="margin-top:12px">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text-muted);font-weight:500">
+        첨부파일 (<%= mail.attachments.length %>)
+      </div>
+      <ul style="list-style:none;margin:0;padding:8px 16px">
+        <% mail.attachments.forEach(function(att) { %>
+          <li style="padding:6px 0;font-size:13px">
+            <i class="fa-solid fa-paperclip" style="color:var(--text-muted);margin-right:6px"></i>
+            <%= att.filename %>
+            <span style="color:var(--text-muted);margin-left:6px">(<%= Math.round(att.size / 1024) %>KB)</span>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

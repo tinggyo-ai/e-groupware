@@ -1,0 +1,102 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1><%= title %></h1>
+    <div class="button-row">
+      <a class="button" href="/payroll/monthly">목록으로</a>
+    </div>
+  </div>
+
+  <form class="panel" action="<%= editRecord ? '/payroll/monthly/' + editRecord.id : '/payroll/monthly' %>" method="post" id="payrollForm">
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>직원 *
+        <select name="employee_id" required>
+          <option value="">선택</option>
+          <% employees.forEach(e => { %>
+            <option value="<%= e.id %>" <%= editRecord && editRecord.employee_id == e.id ? 'selected' : '' %>><%= e.employee_no %> - <%= e.name %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label>지급월 * <input type="month" name="pay_month" value="<%= editRecord ? editRecord.pay_month : '' %>" required></label>
+      <label>지급일 <input type="date" name="pay_date" value="<%= editRecord ? (editRecord.pay_date || '') : '' %>"></label>
+    </div>
+
+    <h2 style="font-size:17px;margin-bottom:12px;color:var(--primary)">지급 항목</h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>기본급 <input type="number" name="base_salary" class="pay-item" value="<%= editRecord ? editRecord.base_salary : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>식대 <input type="number" name="meal_allowance" class="pay-item" value="<%= editRecord ? editRecord.meal_allowance : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>직책수당 <input type="number" name="position_allowance" class="pay-item" value="<%= editRecord ? editRecord.position_allowance : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>초과근무수당 <input type="number" name="overtime_pay" class="pay-item" value="<%= editRecord ? editRecord.overtime_pay : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>야간근무수당 <input type="number" name="night_work_pay" class="pay-item" value="<%= editRecord ? editRecord.night_work_pay : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>휴일근무수당 <input type="number" name="holiday_work_pay" class="pay-item" value="<%= editRecord ? editRecord.holiday_work_pay : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>상여금 <input type="number" name="bonus" class="pay-item" value="<%= editRecord ? editRecord.bonus : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>인센티브 <input type="number" name="incentive" class="pay-item" value="<%= editRecord ? editRecord.incentive : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>기타 지급 <input type="number" name="other_payment" class="pay-item" value="<%= editRecord ? editRecord.other_payment : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label style="grid-column:span 3">
+        <strong style="color:var(--primary)">총 지급액 합계</strong>
+        <input type="text" id="total_payment_display" readonly style="background:#eaf0f6;font-weight:700;color:var(--primary);font-size:16px">
+      </label>
+    </div>
+
+    <h2 style="font-size:17px;margin-bottom:12px;color:var(--danger)">공제 항목</h2>
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>국민연금 <input type="number" name="national_pension" class="ded-item" value="<%= editRecord ? editRecord.national_pension : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>건강보험 <input type="number" name="health_insurance" class="ded-item" value="<%= editRecord ? editRecord.health_insurance : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>장기요양보험 <input type="number" name="long_term_care" class="ded-item" value="<%= editRecord ? editRecord.long_term_care : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>고용보험 <input type="number" name="employment_insurance" class="ded-item" value="<%= editRecord ? editRecord.employment_insurance : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>소득세 <input type="number" name="income_tax" class="ded-item" value="<%= editRecord ? editRecord.income_tax : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>지방소득세 <input type="number" name="local_income_tax" class="ded-item" value="<%= editRecord ? editRecord.local_income_tax : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label>기타 공제 <input type="number" name="other_deduction" class="ded-item" value="<%= editRecord ? editRecord.other_deduction : 0 %>" min="0" oninput="calcTotals()"></label>
+      <label style="grid-column:span 2">
+        <strong style="color:var(--danger)">총 공제액 합계</strong>
+        <input type="text" id="total_deduction_display" readonly style="background:#fff0f0;font-weight:700;color:var(--danger);font-size:16px">
+      </label>
+    </div>
+
+    <div class="panel" style="background:#eaf6f3;border-color:#a8d5cc;margin-bottom:20px">
+      <strong style="font-size:15px;color:var(--success)">실 지급액</strong>
+      <input type="text" id="net_payment_display" readonly style="background:transparent;border:none;font-weight:800;font-size:24px;color:var(--success);padding:4px 0;width:auto">
+    </div>
+
+    <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:20px">
+      <label>지급 상태
+        <select name="payment_status">
+          <% ['작성중','검토중','확정','지급완료'].forEach(s => { %>
+            <option value="<%= s %>" <%= editRecord && editRecord.payment_status === s ? 'selected' : (s === '작성중' && !editRecord ? 'selected' : '') %>><%= s %></option>
+          <% }) %>
+        </select>
+      </label>
+      <label style="grid-column:span 2">메모
+        <input name="memo" value="<%= editRecord ? (editRecord.memo || '') : '' %>">
+      </label>
+    </div>
+
+    <div class="button-row">
+      <button class="button primary" type="submit">저장</button>
+      <a class="button" href="/payroll/monthly">목록으로</a>
+    </div>
+  </form>
+</main>
+<%- include('../partials/footer') %>
+
+<script>
+function calcTotals() {
+  const payItems = document.querySelectorAll('.pay-item');
+  const dedItems = document.querySelectorAll('.ded-item');
+
+  let totalPay = 0;
+  payItems.forEach(el => { totalPay += parseInt(el.value) || 0; });
+
+  let totalDed = 0;
+  dedItems.forEach(el => { totalDed += parseInt(el.value) || 0; });
+
+  const net = totalPay - totalDed;
+
+  document.getElementById('total_payment_display').value = totalPay.toLocaleString('ko-KR') + '원';
+  document.getElementById('total_deduction_display').value = totalDed.toLocaleString('ko-KR') + '원';
+  document.getElementById('net_payment_display').value = net.toLocaleString('ko-KR') + '원';
+}
+
+// 초기 계산
+calcTotals();
+</script>

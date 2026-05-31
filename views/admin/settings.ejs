@@ -1,0 +1,12 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>시스템 설정</h1></div>
+  <form class="panel form-stack narrow-form" action="/admin/settings" method="post">
+    <label>회사명 <input name="company_name" value="<%= settings.company_name %>" required></label>
+    <label>출근 기준 시간 <input type="time" name="work_start_time" value="<%= settings.work_start_time %>" required></label>
+    <label>퇴근 기준 시간 <input type="time" name="work_end_time" value="<%= settings.work_end_time %>" required></label>
+    <label>회사 로고 <input value="향후 파일 업로드 확장 예정" disabled></label>
+    <button class="button primary">설정 저장</button>
+  </form>
+</section></main>
+<%- include('../partials/footer') %>

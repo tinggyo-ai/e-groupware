@@ -1,0 +1,78 @@
+<%- include('../partials/head', { title: title }) %>
+<main class="main-content">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fa-solid fa-inbox"></i> 받은 편지함</h1>
+    <div class="page-actions">
+      <a class="btn btn-primary" href="/mail/compose"><i class="fa-solid fa-pen-to-square"></i> 메일 쓰기</a>
+      <a class="btn btn-outline" href="/mail/settings"><i class="fa-solid fa-gear"></i> 설정</a>
+    </div>
+  </div>
+
+  <% if (typeof error !== 'undefined') { %>
+    <div class="flash danger"><%= error %></div>
+  <% } %>
+
+  <div class="card">
+    <% if (total > 0) { %>
+      <div style="padding:10px 16px;color:var(--text-muted);font-size:13px;border-bottom:1px solid var(--border)">
+        전체 <%= total %>개
+      </div>
+    <% } %>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:20px"></th>
+          <th style="width:180px">보낸 사람</th>
+          <th>제목</th>
+          <th style="width:120px">날짜</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (messages.length === 0) { %>
+          <tr>
+            <td colspan="4" style="text-align:center;padding:60px 20px;color:var(--text-muted)">
+              <i class="fa-solid fa-inbox" style="font-size:32px;display:block;margin-bottom:8px;opacity:.4"></i>
+              받은 메일이 없습니다
+            </td>
+          </tr>
+        <% } %>
+        <% messages.forEach(function(msg) { %>
+          <tr style="<%= !msg.seen ? 'font-weight:600;background:var(--bg-hover, #fafafa)' : '' %>">
+            <td style="text-align:center">
+              <% if (!msg.seen) { %>
+                <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--primary)"></span>
+              <% } %>
+            </td>
+            <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px">
+              <%= msg.fromName || msg.from %>
+            </td>
+            <td>
+              <a href="/mail/<%= msg.uid %>" style="color:inherit;text-decoration:none">
+                <%= msg.subject %>
+              </a>
+            </td>
+            <td style="color:var(--text-muted);font-size:12px;white-space:nowrap">
+              <% if (msg.date) { %>
+                <%= new Date(msg.date).toLocaleDateString('ko-KR', { month:'2-digit', day:'2-digit' }) %>
+                <%= new Date(msg.date).toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' }) %>
+              <% } %>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <% if (totalPages > 1) { %>
+      <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:16px;border-top:1px solid var(--border)">
+        <% if (page > 1) { %>
+          <a href="/mail?page=<%= page - 1 %>" class="btn btn-outline btn-sm">이전</a>
+        <% } %>
+        <span style="font-size:13px;color:var(--text-muted)"><%= page %> / <%= totalPages %></span>
+        <% if (page < totalPages) { %>
+          <a href="/mail?page=<%= page + 1 %>" class="btn btn-outline btn-sm">다음</a>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

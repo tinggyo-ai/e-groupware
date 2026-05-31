@@ -1,0 +1,80 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1>월별 급여</h1>
+    <div class="button-row">
+      <a class="button primary" href="/payroll/monthly/new"><i class="fa-solid fa-plus"></i> 월급여 등록</a>
+      <a class="button" href="/payroll">급여관리 홈</a>
+    </div>
+  </div>
+
+  <form class="panel filter-bar" method="get" action="/payroll/monthly" style="margin-bottom:16px;display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap">
+    <label style="min-width:160px">
+      지급월
+      <input type="month" name="pay_month" value="<%= filters.pay_month %>">
+    </label>
+    <label style="flex:1;min-width:160px">
+      이름 검색
+      <input type="text" name="name" value="<%= filters.name %>" placeholder="직원 이름">
+    </label>
+    <button class="button primary" type="submit">검색</button>
+    <a class="button" href="/payroll/monthly">초기화</a>
+  </form>
+
+  <section class="panel">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>지급월</th>
+            <th>사번</th>
+            <th>이름</th>
+            <th>부서</th>
+            <th>직급</th>
+            <th style="text-align:right">총지급액</th>
+            <th style="text-align:right">총공제액</th>
+            <th style="text-align:right">실지급액</th>
+            <th>지급상태</th>
+            <th>상세</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (records.length === 0) { %>
+            <tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px">급여 기록이 없습니다.</td></tr>
+          <% } %>
+          <% records.forEach(r => { %>
+            <%
+              let badgeClass = 'badge';
+              if (r.payment_status === '작성중') badgeClass += ' status-draft';
+              else if (r.payment_status === '검토중') badgeClass += ' status-review';
+              else if (r.payment_status === '확정') badgeClass += ' status-confirmed';
+              else if (r.payment_status === '지급완료') badgeClass += ' status-paid';
+            %>
+            <tr>
+              <td><%= r.pay_month %></td>
+              <td><%= r.employee_no %></td>
+              <td><strong><%= r.name %></strong></td>
+              <td><%= r.department_name || '-' %></td>
+              <td><%= r.position || '-' %></td>
+              <td style="text-align:right"><%= Number(r.total_payment).toLocaleString('ko-KR') %>원</td>
+              <td style="text-align:right"><%= Number(r.total_deduction).toLocaleString('ko-KR') %>원</td>
+              <td style="text-align:right"><strong><%= Number(r.net_payment).toLocaleString('ko-KR') %>원</strong></td>
+              <td><span class="badge <%= badgeClass %>"><%= r.payment_status %></span></td>
+              <td class="actions">
+                <a href="/payroll/monthly/<%= r.id %>">상세</a>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('../partials/footer') %>
+
+<style>
+.status-draft { background:#eef2f6;color:#526985; }
+.status-review { background:#e7f1ff;color:#115ca8; }
+.status-confirmed { background:#fff8e1;color:#b37a00; }
+.status-paid { background:#e6f7f4;color:#168477; }
+</style>

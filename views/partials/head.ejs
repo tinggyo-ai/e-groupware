@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= title %> - <%= companyName %></title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+  <% if (currentUser && !currentPath.startsWith('/admin') && currentPath !== '/login') { %>
+  <% if (currentUser.role === 'admin' && (currentPath.startsWith('/hr') || currentPath.startsWith('/payroll'))) { %>
+    <%- include('admin-nav') %>
+  <% } else { %>
+    <aside class="topbar app-sidebar">
+      <div class="sidebar-brand">
+        <a class="brand" href="/dashboard">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span></span>
+          <span class="brand-title"><%= companyName %></span>
+        </a>
+        <span>Groupware Portal</span>
+      </div>
+      <nav class="topnav">
+        <a class="<%= currentPath === '/dashboard' ? 'active' : '' %>" href="/dashboard"><i class="fa-solid fa-house"></i> 홈</a>
+        <a class="<%= currentPath.startsWith('/attendance') ? 'active' : '' %>" href="/attendance"><i class="fa-solid fa-clock"></i> 근태관리</a>
+        <a class="<%= currentPath.startsWith('/work-logs') ? 'active' : '' %>" href="/work-logs"><i class="fa-solid fa-clipboard-list"></i> 업무일지</a>
+        <a class="<%= currentPath.startsWith('/mail') ? 'active' : '' %>" href="/mail"><i class="fa-solid fa-envelope"></i> 사내 메일</a>
+        <a class="<%= currentPath.startsWith('/approvals') ? 'active' : '' %>" href="/approvals/my"><i class="fa-solid fa-file-signature"></i> 전자결재</a>
+        <a class="<%= currentPath.startsWith('/boards') ? 'active' : '' %>" href="/boards"><i class="fa-solid fa-graduation-cap"></i> 게시판</a>
+        <a class="<%= currentPath.startsWith('/organization') ? 'active' : '' %>" href="/organization"><i class="fa-solid fa-sitemap"></i> 조직도</a>
+        <a class="<%= currentPath.startsWith('/profile') ? 'active' : '' %>" href="/profile"><i class="fa-solid fa-user"></i> 내 정보</a>
+        <% if (currentUser.role === 'admin') { %>
+          <a href="/admin"><i class="fa-solid fa-gear"></i> 관리자 홈</a>
+        <% } %>
+        <% if (currentUser.role === 'hr' || currentUser.role === 'payroll') { %>
+          <a class="<%= currentPath.startsWith('/hr') ? 'active' : '' %>" href="/hr"><i class="fa-solid fa-id-card"></i> 인사관리</a>
+          <a class="<%= currentPath.startsWith('/payroll') ? 'active' : '' %>" href="/payroll"><i class="fa-solid fa-won-sign"></i> 급여관리</a>
+        <% } %>
+      </nav>
+      <div class="sidebar-user">
+        <div class="sidebar-avatar" aria-hidden="true"><i class="fa-solid fa-user"></i></div>
+        <div class="sidebar-user-main">
+        <strong><%= currentUser.name %></strong>
+        <span><%= currentUser.departmentName || '부서 미지정' %> · <%= currentUser.position || '-' %></span>
+        <small><%= currentUser.email || currentUser.username %></small>
+        </div>
+        <form action="/logout" method="post">
+          <button class="link-button" type="submit"><i class="fa-solid fa-arrow-right-from-bracket"></i> 로그아웃</button>
+        </form>
+      </div>
+    </aside>
+  <% } %>
+  <% } %>
+  <% if (flash && currentPath !== '/login') { %>
+    <div class="flash <%= flash.type %>"><%= flash.message %></div>
+  <% } %>

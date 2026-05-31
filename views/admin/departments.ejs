@@ -1,0 +1,15 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>부서 관리</h1></div>
+  <form class="panel form-grid" action="/admin/departments" method="post">
+    <label>부서명 <input name="name" required></label>
+    <label>상위부서 <select name="parent_id"><option value="">없음</option><% departments.forEach(d => { %><option value="<%= d.id %>"><%= d.name %></option><% }) %></select></label>
+    <label>부서장 <select name="manager_user_id"><option value="">미지정</option><% managers.forEach(m => { %><option value="<%= m.id %>"><%= m.name %> <%= m.position || '' %></option><% }) %></select></label>
+    <label>표시 순서 <input name="sort_order" type="number" value="0"></label>
+    <button class="button primary" type="submit">부서 등록</button>
+  </form>
+  <div class="table-wrap panel"><table><thead><tr><th>부서</th><th>상위부서</th><th>부서장</th><th>순서</th><th>수정</th></tr></thead><tbody>
+    <% departments.forEach(d => { %><tr><form action="/admin/departments/<%= d.id %>/update" method="post"><td><input name="name" value="<%= d.name %>"></td><td><input name="parent_id" value="<%= d.parent_id || '' %>"></td><td><input name="manager_user_id" value="<%= d.manager_user_id || '' %>"></td><td><input name="sort_order" type="number" value="<%= d.sort_order %>"></td><td><button>저장</button></td></form></tr><% }) %>
+  </tbody></table></div>
+</section></main>
+<%- include('../partials/footer') %>

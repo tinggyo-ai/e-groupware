@@ -1,0 +1,11 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>결재라인 관리</h1></div>
+  <section class="panel">
+    <p>부서별 결재권자는 부서 관리의 부서장 지정과 사용자 권한 관리에서 설정합니다.</p>
+    <div class="table-wrap"><table><thead><tr><th>결재권자</th><th>부서</th><th>직급</th><th>권한</th></tr></thead><tbody>
+      <% managers.forEach(m => { %><tr><td><%= m.name %></td><td><%= m.department_name || '-' %></td><td><%= m.position || '-' %></td><td><%= m.role %></td></tr><% }) %>
+    </tbody></table></div>
+  </section>
+</section></main>
+<%- include('../partials/footer') %>

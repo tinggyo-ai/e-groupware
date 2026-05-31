@@ -1,0 +1,109 @@
+<%- include('../partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1>급여 상세 - <%= record.name %> (<%= record.pay_month %>)</h1>
+    <div class="button-row">
+      <a class="button primary" href="/payroll/monthly/<%= record.id %>/edit">수정</a>
+      <form action="/payroll/monthly/<%= record.id %>/delete" method="post" style="display:inline">
+        <button type="submit" class="button danger" onclick="return confirm('삭제하시겠습니까?')">삭제</button>
+      </form>
+      <a class="button" href="/payroll/monthly">목록으로</a>
+    </div>
+  </div>
+
+  <!-- 직원 기본정보 카드 -->
+  <div class="panel" style="margin-bottom:16px">
+    <div class="section-head">
+      <h2 style="font-size:17px">직원 정보</h2>
+    </div>
+    <dl class="detail-list" style="grid-template-columns:repeat(4,auto 1fr);gap:10px 20px">
+      <dt>사번</dt><dd><%= record.employee_no %></dd>
+      <dt>이름</dt><dd><strong><%= record.name %></strong></dd>
+      <dt>부서</dt><dd><%= record.department_name || '-' %></dd>
+      <dt>직급</dt><dd><%= record.position || '-' %></dd>
+      <dt>지급월</dt><dd><%= record.pay_month %></dd>
+      <dt>지급일</dt><dd><%= record.pay_date || '-' %></dd>
+      <dt>지급상태</dt>
+      <dd>
+        <%
+          let badgeClass = 'badge';
+          if (record.payment_status === '작성중') badgeClass += ' status-draft';
+          else if (record.payment_status === '검토중') badgeClass += ' status-review';
+          else if (record.payment_status === '확정') badgeClass += ' status-confirmed';
+          else if (record.payment_status === '지급완료') badgeClass += ' status-paid';
+        %>
+        <span class="<%= badgeClass %>"><%= record.payment_status %></span>
+      </dd>
+    </dl>
+  </div>
+
+  <div class="two-col" style="margin-bottom:16px">
+    <!-- 지급내역 카드 -->
+    <div class="panel">
+      <h2 style="font-size:17px;margin-bottom:14px;color:var(--primary)">지급 내역</h2>
+      <dl class="detail-list" style="grid-template-columns:130px 1fr;gap:8px 16px">
+        <dt>기본급</dt><dd style="text-align:right"><%= Number(record.base_salary).toLocaleString('ko-KR') %>원</dd>
+        <dt>식대</dt><dd style="text-align:right"><%= Number(record.meal_allowance).toLocaleString('ko-KR') %>원</dd>
+        <dt>직책수당</dt><dd style="text-align:right"><%= Number(record.position_allowance).toLocaleString('ko-KR') %>원</dd>
+        <dt>초과근무수당</dt><dd style="text-align:right"><%= Number(record.overtime_pay).toLocaleString('ko-KR') %>원</dd>
+        <dt>야간근무수당</dt><dd style="text-align:right"><%= Number(record.night_work_pay).toLocaleString('ko-KR') %>원</dd>
+        <dt>휴일근무수당</dt><dd style="text-align:right"><%= Number(record.holiday_work_pay).toLocaleString('ko-KR') %>원</dd>
+        <dt>상여금</dt><dd style="text-align:right"><%= Number(record.bonus).toLocaleString('ko-KR') %>원</dd>
+        <dt>인센티브</dt><dd style="text-align:right"><%= Number(record.incentive).toLocaleString('ko-KR') %>원</dd>
+        <dt>기타 지급</dt><dd style="text-align:right"><%= Number(record.other_payment).toLocaleString('ko-KR') %>원</dd>
+        <dt style="border-top:2px solid var(--line);padding-top:8px"><strong>총 지급액</strong></dt>
+        <dd style="text-align:right;border-top:2px solid var(--line);padding-top:8px"><strong style="color:var(--primary);font-size:18px"><%= Number(record.total_payment).toLocaleString('ko-KR') %>원</strong></dd>
+      </dl>
+    </div>
+
+    <!-- 공제내역 카드 -->
+    <div class="panel">
+      <h2 style="font-size:17px;margin-bottom:14px;color:var(--danger)">공제 내역</h2>
+      <dl class="detail-list" style="grid-template-columns:130px 1fr;gap:8px 16px">
+        <dt>국민연금</dt><dd style="text-align:right"><%= Number(record.national_pension).toLocaleString('ko-KR') %>원</dd>
+        <dt>건강보험</dt><dd style="text-align:right"><%= Number(record.health_insurance).toLocaleString('ko-KR') %>원</dd>
+        <dt>장기요양보험</dt><dd style="text-align:right"><%= Number(record.long_term_care).toLocaleString('ko-KR') %>원</dd>
+        <dt>고용보험</dt><dd style="text-align:right"><%= Number(record.employment_insurance).toLocaleString('ko-KR') %>원</dd>
+        <dt>소득세</dt><dd style="text-align:right"><%= Number(record.income_tax).toLocaleString('ko-KR') %>원</dd>
+        <dt>지방소득세</dt><dd style="text-align:right"><%= Number(record.local_income_tax).toLocaleString('ko-KR') %>원</dd>
+        <dt>기타 공제</dt><dd style="text-align:right"><%= Number(record.other_deduction).toLocaleString('ko-KR') %>원</dd>
+        <dt style="border-top:2px solid var(--line);padding-top:8px"><strong>총 공제액</strong></dt>
+        <dd style="text-align:right;border-top:2px solid var(--line);padding-top:8px"><strong style="color:var(--danger);font-size:18px"><%= Number(record.total_deduction).toLocaleString('ko-KR') %>원</strong></dd>
+      </dl>
+    </div>
+  </div>
+
+  <!-- 총계 카드 -->
+  <div class="panel" style="background:linear-gradient(135deg,#eaf6f3,#f4fcfb);border-color:#a8d5cc">
+    <h2 style="font-size:17px;margin-bottom:14px;color:var(--success)">급여 총계</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center">
+      <div>
+        <p style="color:var(--muted);margin:0 0 6px;font-size:14px">총 지급액</p>
+        <strong style="font-size:22px;color:var(--primary)"><%= Number(record.total_payment).toLocaleString('ko-KR') %>원</strong>
+      </div>
+      <div>
+        <p style="color:var(--muted);margin:0 0 6px;font-size:14px">총 공제액</p>
+        <strong style="font-size:22px;color:var(--danger)"><%= Number(record.total_deduction).toLocaleString('ko-KR') %>원</strong>
+      </div>
+      <div>
+        <p style="color:var(--muted);margin:0 0 6px;font-size:14px">실 지급액</p>
+        <strong style="font-size:28px;color:var(--success)"><%= Number(record.net_payment).toLocaleString('ko-KR') %>원</strong>
+      </div>
+    </div>
+  </div>
+
+  <% if (record.memo) { %>
+  <div class="panel" style="margin-top:16px">
+    <h2 style="font-size:17px;margin-bottom:10px">메모</h2>
+    <pre style="background:#f4f6f9;padding:14px;border-radius:8px"><%= record.memo %></pre>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>
+
+<style>
+.status-draft { background:#eef2f6;color:#526985; }
+.status-review { background:#e7f1ff;color:#115ca8; }
+.status-confirmed { background:#fff8e1;color:#b37a00; }
+.status-paid { background:#e6f7f4;color:#168477; }
+</style>

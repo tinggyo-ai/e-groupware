@@ -1,0 +1,16 @@
+<%- include('partials/head') %>
+<main class="container narrow">
+  <section class="panel">
+    <h1>내 정보</h1>
+    <dl class="detail-list">
+      <dt>아이디</dt><dd><%= user.username %></dd>
+      <dt>이름</dt><dd><%= user.name %></dd>
+      <dt>부서</dt><dd><%= user.department_name || '-' %></dd>
+      <dt>직급</dt><dd><%= user.position || '-' %></dd>
+      <dt>이메일</dt><dd><%= user.email || '-' %></dd>
+      <dt>연락처</dt><dd><%= user.phone || '-' %></dd>
+      <dt>권한</dt><dd><%= user.role %></dd>
+    </dl>
+  </section>
+</main>
+<%- include('partials/footer') %>

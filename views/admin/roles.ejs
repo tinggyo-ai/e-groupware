@@ -1,0 +1,8 @@
+<%- include('../partials/head') %>
+<main class="admin-shell"><%- include('../partials/admin-nav') %><section class="admin-content">
+  <div class="page-title"><h1>권한 관리</h1></div>
+  <div class="panel table-wrap"><table><thead><tr><th>이름</th><th>부서</th><th>현재 권한</th><th>변경</th></tr></thead><tbody>
+    <% users.forEach(u => { %><tr><td><%= u.name %></td><td><%= u.department_name || '-' %></td><td><%= u.role %></td><td><form action="/admin/roles/<%= u.id %>" method="post" class="inline-form"><select name="role"><% ['admin','manager','employee'].forEach(r => { %><option value="<%= r %>" <%= u.role === r ? 'selected' : '' %>><%= r %></option><% }) %></select><button>저장</button></form></td></tr><% }) %>
+  </tbody></table></div>
+</section></main>
+<%- include('../partials/footer') %>

@@ -1,0 +1,27 @@
+<%- include('partials/head') %>
+<main class="container narrow">
+  <div class="page-title"><h1>결재 문서 작성</h1></div>
+  <form action="/approvals/new" method="post" class="panel form-stack">
+    <label>결재 양식
+      <select name="form_id" required>
+        <% forms.forEach(function(form) { %><option value="<%= form.id %>"><%= form.form_name %></option><% }) %>
+      </select>
+    </label>
+    <label>제목 <input name="title" required></label>
+    <label>내용 <textarea name="content" rows="8" required></textarea></label>
+    <label>금액 <input name="amount" type="number" min="0" value="0"></label>
+    <label>결재자
+      <select name="approver_id" required>
+        <% approvers.forEach(function(user) { %>
+          <option value="<%= user.id %>"><%= user.name %> · <%= user.department_name || '-' %> · <%= user.position || '-' %></option>
+        <% }) %>
+      </select>
+    </label>
+    <p class="muted">첨부파일은 3단계 확장을 고려해 데이터 구조만 준비되어 있습니다.</p>
+    <div class="button-row">
+      <button class="button" name="action" value="draft" type="submit">임시저장</button>
+      <button class="button primary" name="action" value="submit" type="submit">상신</button>
+    </div>
+  </form>
+</main>
+<%- include('partials/footer') %>

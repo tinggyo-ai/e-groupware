@@ -1,0 +1,27 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-title"><h1>조직도</h1></div>
+  <form class="filter-bar" method="get">
+    <input name="q" placeholder="이름 또는 부서 검색" value="<%= q %>">
+    <button class="button" type="submit">검색</button>
+  </form>
+  <section class="card-grid">
+    <% departments.forEach(function(dept) { %>
+      <article class="card"><span>부서</span><strong><%= dept.name %></strong></article>
+    <% }) %>
+  </section>
+  <section class="panel">
+    <h2>직원 목록</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>이름</th><th>부서</th><th>직급</th><th>이메일</th><th>연락처</th></tr></thead>
+        <tbody>
+          <% users.forEach(function(user) { %>
+            <tr><td><%= user.name %></td><td><%= user.department_name || '-' %></td><td><%= user.position || '-' %></td><td><%= user.email || '-' %></td><td><%= user.phone || '-' %></td></tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>

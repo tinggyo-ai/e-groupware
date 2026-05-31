@@ -1,0 +1,39 @@
+<%- include('partials/head') %>
+<main class="container">
+  <div class="page-title">
+    <h1>내 결재함</h1>
+    <a class="button primary" href="/approvals/new">결재 작성</a>
+  </div>
+  <% if (waiting.length) { %>
+    <section class="panel">
+      <h2>결재 대기 문서</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>제목</th><th>양식</th><th>신청자</th><th>상태</th><th></th></tr></thead>
+          <tbody>
+            <% waiting.forEach(function(doc) { %>
+              <tr><td><%= doc.title %></td><td><%= doc.form_name %></td><td><%= doc.requester_name %></td><td><%= doc.status %></td><td><a href="/approvals/<%= doc.id %>">보기</a></td></tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  <% } %>
+  <section class="panel">
+    <h2>내가 올린 문서</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>제목</th><th>양식</th><th>상태</th><th>작성일</th><th></th></tr></thead>
+        <tbody>
+          <% docs.forEach(function(doc) { %>
+            <tr>
+              <td><%= doc.title %></td><td><%= doc.form_name %></td><td><span class="badge"><%= doc.status %></span></td>
+              <td><%= doc.created_at.slice(0,10) %></td><td><a href="/approvals/<%= doc.id %>">보기</a></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>
