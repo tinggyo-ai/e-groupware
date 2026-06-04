@@ -114,7 +114,11 @@
       </div>
       <div class="cs-grid">
 
-        <a class="cs-card" href="<%= messengerUrl %>" target="_blank" rel="noopener">
+        <button class="cs-card cs-card--launcher" type="button"
+                data-launch-url="<%= messengerLaunchUrl %>"
+                data-install-url="<%= messengerInstallUrl %>"
+                data-web-url="<%= messengerUrl %>"
+                onclick="openMessengerApp(event, this)">
           <div class="cs-icon cs-icon--messenger">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
@@ -126,7 +130,7 @@
             <small>실시간 메신저</small>
           </div>
           <span class="cs-badge cs-badge--online">ONLINE</span>
-        </a>
+        </button>
 
         <button class="cs-card cs-card--desktop" type="button"
                 data-app-name="Essence (AI 챗봇 - Groq)"
@@ -269,6 +273,37 @@
 (function () {
   var backdrop = document.getElementById('csModalBackdrop');
   var body = document.getElementById('csModalBody');
+  window.openMessengerApp = function (event, btn) {
+    event.preventDefault();
+
+    var launchUrl = btn.dataset.launchUrl || 'emessenger://open';
+    var installUrl = btn.dataset.installUrl || '/download/windows';
+    var didLeavePage = false;
+
+    var markLeft = function () {
+      didLeavePage = true;
+      cleanup();
+    };
+    var cleanup = function () {
+      window.removeEventListener('pagehide', markLeft);
+      window.removeEventListener('blur', markLeft);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+    var onVisibilityChange = function () {
+      if (document.hidden) markLeft();
+    };
+
+    window.addEventListener('pagehide', markLeft, { once: true });
+    window.addEventListener('blur', markLeft, { once: true });
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    window.location.href = launchUrl;
+
+    window.setTimeout(function () {
+      cleanup();
+      if (!didLeavePage) window.location.href = installUrl;
+    }, 3000);
+  };
   window.showDesktopAppModal = function (btn) {
     var name = btn.dataset.appName || '앱';
     body.innerHTML = '<b>' + name + '</b> 은(는) 데스크톱 앱으로 제공됩니다.<br>바탕화면 또는 시작 메뉴에서 직접 실행해 주세요.';
