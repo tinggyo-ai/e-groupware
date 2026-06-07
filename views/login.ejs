@@ -103,7 +103,7 @@
             <label for="loginUsername">아이디</label>
             <div class="lp-input-wrap">
               <i class="fa-regular fa-user lp-input-icon" aria-hidden="true"></i>
-              <input id="loginUsername" name="username" autocomplete="username" required autofocus placeholder="아이디 입력">
+              <input id="loginUsername" name="username" autocomplete="username" required placeholder="아이디 입력">
             </div>
           </div>
 
@@ -151,6 +151,171 @@ function togglePw() {
     eye.className = 'fa-regular fa-eye-slash';
   }
 }
+
+(function () {
+  var inputSelector = '.lp-input-wrap input';
+  var fontLarge = '800 20px/1.2 "Segoe UI", Arial, "Noto Sans KR", sans-serif';
+  var fontCompact = '800 17px/1.2 "Segoe UI", Arial, "Noto Sans KR", sans-serif';
+  var bullet = '\u2022';
+  var editingInputs = new WeakSet();
+
+  function isCompactLogin() {
+    return window.matchMedia('(min-width: 1041px) and (max-width: 1440px) and (max-height: 860px)').matches;
+  }
+
+  function mirrorText(input) {
+    if (!input.value) return '';
+    if (input.type === 'password') return bullet.repeat(input.value.length);
+    return input.value;
+  }
+
+  function ensureMirror(input) {
+    var wrap = input.closest('.lp-input-wrap');
+    if (!wrap) return null;
+
+    var mirror = wrap.querySelector('.lp-value-mirror');
+    if (!mirror) {
+      mirror = document.createElement('span');
+      mirror.className = 'lp-value-mirror';
+      mirror.setAttribute('aria-hidden', 'true');
+      input.insertAdjacentElement('afterend', mirror);
+    }
+    return mirror;
+  }
+
+  function syncMirror(input) {
+    var wrap = input.closest('.lp-input-wrap');
+    var mirror = ensureMirror(input);
+    if (!wrap || !mirror) return;
+
+    var text = mirrorText(input);
+    var isEditing = editingInputs.has(input);
+    wrap.classList.toggle('is-editing', isEditing);
+    if (text) {
+      mirror.textContent = text;
+      wrap.classList.add('has-value-mirror');
+    } else if (isEditing || !mirror.textContent) {
+      mirror.textContent = '';
+      wrap.classList.remove('has-value-mirror');
+    }
+    // input.value 접근 불가(autofill 보안)이나 prefill이 있으면 그대로 유지
+  }
+
+  function fixLoginInputFont(input) {
+    if (!input) return;
+    var sz = isCompactLogin() ? '17px' : '20px';
+    input.classList.add('lp-autofill-fixed');
+    input.style.setProperty('font-size', sz, 'important');
+    input.style.setProperty('font-weight', '800', 'important');
+    input.style.setProperty('font-family', '"Segoe UI", Arial, "Noto Sans KR", sans-serif', 'important');
+    input.style.setProperty('line-height', '1.2', 'important');
+    input.style.setProperty('letter-spacing', '0', 'important');
+    syncMirror(input);
+  }
+
+  function fixAllLoginInputFonts() {
+    document.querySelectorAll(inputSelector).forEach(fixLoginInputFont);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    fixAllLoginInputFonts();
+    [80, 240, 600, 1200, 2500, 5000].forEach(function (delay) {
+      window.setTimeout(fixAllLoginInputFonts, delay);
+    });
+  });
+
+  window.addEventListener('pageshow', fixAllLoginInputFonts);
+  window.addEventListener('resize', fixAllLoginInputFonts);
+  window.addEventListener('focus', function () {
+    setTimeout(fixAllLoginInputFonts, 100);
+    setTimeout(fixAllLoginInputFonts, 400);
+  });
+
+  document.addEventListener('click', function () {
+    fixAllLoginInputFonts();
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    [100, 300, 700].forEach(function (d) {
+      setTimeout(function () {
+        document.body.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      }, d);
+    });
+  });
+
+  document.addEventListener('input', function (event) {
+    if (event.target && event.target.matches(inputSelector)) {
+      editingInputs.add(event.target);
+      fixLoginInputFont(event.target);
+    }
+  });
+  document.addEventListener('change', function (event) {
+    if (event.target && event.target.matches(inputSelector)) fixLoginInputFont(event.target);
+  });
+  document.addEventListener('pointerdown', function (event) {
+    if (event.target && event.target.matches(inputSelector)) {
+      editingInputs.add(event.target);
+      var wrap = event.target.closest('.lp-input-wrap');
+      if (wrap) wrap.classList.add('is-editing');
+    }
+  });
+  document.addEventListener('focusin', function (event) {
+    if (event.target && event.target.matches(inputSelector)) {
+      editingInputs.add(event.target);
+      var wrap = event.target.closest('.lp-input-wrap');
+      if (wrap) wrap.classList.add('is-editing');
+      fixLoginInputFont(event.target);
+    }
+  });
+  document.addEventListener('focusout', function (event) {
+    if (event.target && event.target.matches(inputSelector)) {
+      window.setTimeout(function () {
+        editingInputs.delete(event.target);
+        fixLoginInputFont(event.target);
+      }, 0);
+    }
+  });
+
+  document.addEventListener('animationstart', function (event) {
+    if (event.animationName !== 'lp-autofill-detect') return;
+    var target = event.target;
+    if (!target || !target.matches(inputSelector)) return;
+
+    var wrap = target.closest('.lp-input-wrap');
+    var mirror = ensureMirror(target);
+    fixLoginInputFont(target);
+
+    if (wrap && mirror && !target.value) {
+      var prefill = '';
+      if (target.type === 'password') {
+        prefill = '​'; // 처음엔 빈칸 (아이디와 동일)
+      } else {
+        try { prefill = localStorage.getItem('lp_saved_id') || ''; } catch(e) {}
+        if (!prefill) prefill = '​'; // 투명 유지 (작은 폰트 안 보임)
+      }
+      if (prefill) {
+        mirror.textContent = prefill;
+        wrap.classList.add('has-value-mirror');
+      }
+    }
+
+    var frames = 600;
+    (function pump() {
+      fixLoginInputFont(target);
+      if (!target.value && --frames > 0) requestAnimationFrame(pump);
+    }());
+  }, true);
+
+  var lpForm = document.querySelector('.lp-login-form');
+  if (lpForm) {
+    lpForm.addEventListener('submit', function () {
+      var u = document.getElementById('loginUsername');
+      if (u && u.value) {
+        try { localStorage.setItem('lp_saved_id', u.value); } catch(e) {}
+      }
+    });
+  }
+}());
 </script>
 
 <%- include('partials/footer') %>
